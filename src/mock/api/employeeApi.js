@@ -121,6 +121,95 @@ class EmployeeMockApi extends MockApi {
       token: `mock-jwt-token-${user.userId}-${Date.now()}` // Mock JWT token
     });
   }
+
+  // Register new employee/user
+  async registerEmployee(registrationData) {
+    await delay(1500);
+    
+    if (shouldFail()) {
+      throw new MockApiError('Registration service unavailable', 500);
+    }
+
+    const {
+      firstName,
+      lastName,
+      email,
+      username,
+      password,
+      phoneNumber,
+      departmentId,
+      position,
+      hireDate,
+      employeeId
+    } = registrationData;
+
+    // Check if username already exists
+    const existingUser = users.find(u => u.userName === username);
+    if (existingUser) {
+      throw new MockApiError('Username already exists', 409);
+    }
+
+    // Check if employee ID already exists
+    const existingEmployee = this.data.find(e => e.employeeId === parseInt(employeeId));
+    if (existingEmployee) {
+      throw new MockApiError('Employee ID already exists', 409);
+    }
+
+    // Check if email already exists
+    const existingEmail = this.data.find(e => e.email === email);
+    if (existingEmail) {
+      throw new MockApiError('Email address already exists', 409);
+    }
+
+    // Create new employee record
+    const newEmployee = {
+      employeeId: parseInt(employeeId),
+      firstName,
+      lastName,
+      email,
+      phoneNumber: phoneNumber || null,
+      departmentId: parseInt(departmentId),
+      managerId: null, // Will be assigned later by admin
+      position,
+      hireDate: hireDate.split('T')[0], // Convert to date string
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Create new user record (inactive until admin approval)
+    const newUser = {
+      userId: Math.max(...users.map(u => u.userId)) + 1, // Generate new ID
+      userName: username,
+      password: `$2b$10$${password}`, // Mock password hashing
+      employeeId: parseInt(employeeId),
+      isActive: false, // Requires admin approval
+      lastLogin: null,
+      createdAt: new Date().toISOString()
+    };
+
+    // Add default Employee role
+    const newUserRole = {
+      userId: newUser.userId,
+      roleId: 1 // Employee role
+    };
+
+    // In a real application, these would be persisted to database
+    // For mock, we'll just add to arrays temporarily
+    this.data.push(newEmployee);
+    users.push(newUser);
+    userRoles.push(newUserRole);
+
+    return new MockApiResponse({
+      employee: newEmployee,
+      user: {
+        ...newUser,
+        password: undefined // Don't return password
+      },
+      message: 'Registration successful. Account pending approval.',
+      requiresApproval: true
+    });
+  }
 }
 
 // Create singleton instance
@@ -137,5 +226,6 @@ export const createEmployee = (data) => employeeApi.create(data);
 export const updateEmployee = (id, data) => employeeApi.update(id, data);
 export const deleteEmployee = (id) => employeeApi.delete(id);
 export const authenticateEmployee = (username, password) => employeeApi.authenticateEmployee(username, password);
+export const registerEmployee = (registrationData) => employeeApi.registerEmployee(registrationData);
 
 export default employeeApi;

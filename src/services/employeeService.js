@@ -9,7 +9,8 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
-  authenticateEmployee
+  authenticateEmployee,
+  registerEmployee
 } from '../mock/api/employeeApi';
 
 export const employeeService = {
@@ -109,6 +110,16 @@ export const employeeService = {
       return response.data;
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
+    }
+  },
+
+  async register(registrationData) {
+    try {
+      const response = await registerEmployee(registrationData);
+      return response.data;
+    } catch (error) {
+      console.error('Registration error:', error);
       throw error;
     }
   }

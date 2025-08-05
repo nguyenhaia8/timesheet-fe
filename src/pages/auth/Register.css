@@ -1,0 +1,266 @@
+/* Register Component Styles */
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    padding: 1rem;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.register-header {
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+    background: var(--surface-0);
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.register-logo {
+    margin-bottom: 1rem;
+}
+
+.register-title {
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.register-subtitle {
+    color: var(--text-color-secondary);
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.register-form {
+    padding: 2rem;
+    background: var(--surface-0);
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: var(--text-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    color: var(--text-color);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-field .p-inputtext,
+.form-field .p-password,
+.form-field .p-dropdown,
+.form-field .p-calendar {
+    width: 100%;
+}
+
+.form-field .p-password input {
+    width: 100%;
+}
+
+.form-field .p-error {
+    color: var(--red-500);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.register-actions {
+    margin-top: 2rem;
+}
+
+.register-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+}
+
+.register-footer .p-button-link {
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-left: 0.5rem;
+    padding: 0;
+    text-decoration: none;
+}
+
+.register-footer .p-button-link:hover {
+    color: var(--primary-600);
+    text-decoration: underline;
+}
+
+/* Form validation styles */
+.p-invalid {
+    border-color: var(--red-500) !important;
+}
+
+.p-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--red-500-rgb), 0.2) !important;
+}
+
+/* Password strength styles */
+.p-password-panel {
+    margin-top: 0.5rem;
+}
+
+.p-password-meter {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .register-container {
+        padding: 0.5rem;
+        align-items: flex-start;
+        padding-top: 2rem;
+    }
+
+    .register-card {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .register-form {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .register-title {
+        font-size: 1.75rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-form {
+        padding: 1rem;
+    }
+
+    .register-header {
+        padding: 1.5rem 1rem 1rem 1rem;
+    }
+
+    .register-title {
+        font-size: 1.5rem;
+    }
+
+    .register-subtitle {
+        font-size: 0.875rem;
+    }
+}
+
+/* Focus states for better accessibility */
+.form-field .p-inputtext:focus,
+.form-field .p-password input:focus,
+.form-field .p-dropdown:focus,
+.form-field .p-calendar input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Loading state */
+.p-button.p-button-loading {
+    pointer-events: none;
+}
+
+/* Success message styling */
+.p-toast .p-toast-message.p-toast-message-success {
+    border-left: 4px solid var(--green-500);
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+    border-left: 4px solid var(--red-500);
+}
+
+/* Card animation */
+.register-card {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Divider styling */
+.p-divider {
+    margin: 2rem 0;
+}
+
+/* Message component styling */
+.p-message {
+    margin: 0;
+    border-radius: 8px;
+}
+
+.p-message.p-message-info {
+    background: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    color: var(--blue-700);
+}
+
+.p-message .p-message-wrapper {
+    padding: 1rem;
+}
+
+/* Calendar specific styles */
+.p-calendar .p-datepicker {
+    min-width: auto;
+}
+
+/* Dropdown specific styles */
+.p-dropdown-panel {
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.p-dropdown-item:hover {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
