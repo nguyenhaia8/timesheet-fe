@@ -22,3 +22,18 @@ This directory contains API service files for communicating with the backend.
 - Manage request/response formatting
 - Handle error cases and retry logic
 - Cache management (if needed)
+
+## Mock Integration:
+Currently using mock APIs from `../mock/api` for development.
+When backend is ready, simply update the import statements to use real HTTP clients instead of mock functions.
+
+## Migration Strategy:
+```javascript
+// Current (Mock)
+import { getTimesheets } from '../mock/api';
+
+// Future (Real API)
+import { getTimesheets } from './timesheetService';
+```
+
+The function signatures remain the same, making migration seamless.
