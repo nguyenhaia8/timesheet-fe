@@ -17,7 +17,42 @@ function App() {
     lastName: 'Doe',
     email: 'john.doe@company.com',
     position: 'Software Developer',
-    role: 'employee' // Can be 'employee', 'manager', or 'admin'
+    role: {
+      roleId: 1,
+      roleName: 'Employee',
+      permissions: {
+        timesheet: {
+          view: ['own'],
+          create: ['own'],
+          edit: ['own'],
+          submit: ['own'],
+          delete: []
+        },
+        project: {
+          view: ['assigned'],
+          create: [],
+          edit: [],
+          delete: []
+        },
+        employee: {
+          view: [],
+          create: [],
+          edit: [],
+          delete: []
+        },
+        profile: {
+          view: ['own'],
+          edit: ['own']
+        },
+        reports: {
+          view: [],
+          generate: []
+        },
+        administration: {
+          access: false
+        }
+      }
+    }
   });
 
   const handleLogout = () => {

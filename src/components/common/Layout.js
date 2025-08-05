@@ -20,7 +20,7 @@ const Layout = ({ children, user, onLogout }) => {
             
             <Sidebar 
                 isVisible={sidebarVisible}
-                userRole={user?.role}
+                user={user}
             />
             
             <main className={`main-content ${sidebarVisible ? 'main-content-sidebar-visible' : 'main-content-sidebar-hidden'}`}>

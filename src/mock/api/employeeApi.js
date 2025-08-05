@@ -117,6 +117,7 @@ class EmployeeMockApi extends MockApi {
         password: undefined // Don't return password
       },
       role,
+      permissions: role?.permissions || {},
       token: `mock-jwt-token-${user.userId}-${Date.now()}` // Mock JWT token
     });
   }
