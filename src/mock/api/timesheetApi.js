@@ -38,14 +38,34 @@ class TimesheetMockApi extends MockApi {
     await delay(300);
     
     const today = new Date();
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     
-    const currentWeekTimesheet = this.data.find(ts => 
-      ts.employeeId === employeeId &&
-      new Date(ts.periodStartDate) <= endOfWeek &&
-      new Date(ts.periodEndDate) >= startOfWeek
-    );
+    // Calculate start of week (Sunday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - currentDayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    // Calculate end of week (Saturday)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (6 - currentDayOfWeek));
+    endOfWeek.setHours(23, 59, 59, 999);
+    
+    console.log('Current week calculation:', {
+      today: today.toDateString(),
+      startOfWeek: startOfWeek.toDateString(),
+      endOfWeek: endOfWeek.toDateString(),
+      employeeId
+    });
+    
+    const currentWeekTimesheet = this.data.find(ts => {
+      const tsStart = new Date(ts.periodStartDate);
+      const tsEnd = new Date(ts.periodEndDate);
+      
+      return ts.employeeId === employeeId &&
+        ((tsStart >= startOfWeek && tsStart <= endOfWeek) ||
+         (tsEnd >= startOfWeek && tsEnd <= endOfWeek) ||
+         (tsStart <= startOfWeek && tsEnd >= endOfWeek));
+    });
 
     return new MockApiResponse(currentWeekTimesheet || null);
   }

@@ -75,6 +75,15 @@ export const usePermissions = (user) => {
     canRejectTimesheets: (scope = 'team') => 
       hasTimesheetPermission(permissions, 'reject', scope),
 
+    // Approval permissions
+    canViewApprovals: () => 
+      hasAnyPermission(permissions, [
+        PERMISSIONS.APPROVE_TEAM_TIMESHEET,
+        PERMISSIONS.APPROVE_ALL_TIMESHEET,
+        PERMISSIONS.REJECT_TEAM_TIMESHEET,
+        PERMISSIONS.REJECT_ALL_TIMESHEET
+      ]) || isManager(permissions) || isAdmin(permissions),
+
     // Project permissions
     canViewAssignedProjects: () => 
       hasPermission(permissions, PERMISSIONS.VIEW_ASSIGNED_PROJECT),

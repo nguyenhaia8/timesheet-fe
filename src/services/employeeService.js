@@ -8,10 +8,23 @@ import {
   searchEmployees,
   createEmployee,
   updateEmployee,
-  deleteEmployee,
-  authenticateEmployee,
-  registerEmployee
+  deleteEmployee
 } from '../mock/api/employeeApi';
+
+// Real API imports
+import { authApi } from '../api/auth';
+
+// Real API configuration
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+
+// Helper method to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
 
 export const employeeService = {
   async getAllEmployees(filters = {}) {
@@ -106,8 +119,17 @@ export const employeeService = {
 
   async login(username, password) {
     try {
-      const response = await authenticateEmployee(username, password);
-      return response.data;
+      // Use real API for login
+      const response = await authApi.login({ 
+        userName: username, 
+        password: password 
+      });
+      
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error || 'Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -116,8 +138,20 @@ export const employeeService = {
 
   async register(registrationData) {
     try {
-      const response = await registerEmployee(registrationData);
-      return response.data;
+      // Use real API endpoint for registration
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(registrationData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

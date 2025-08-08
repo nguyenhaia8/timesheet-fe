@@ -1,0 +1,567 @@
+/* Timesheet Management Container Styles */
+.timesheet-management {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--surface-ground);
+}
+
+.timesheet-management .p-card {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+/* Header styling */
+.timesheet-management-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    border-bottom: 1px solid var(--surface-200);
+}
+
+.timesheet-management-header h2 {
+    color: var(--text-900);
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.timesheet-management-header p {
+    color: var(--text-600);
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.4;
+}
+
+/* Tab navigation */
+.timesheet-management .p-tabview {
+    background: transparent;
+}
+
+.timesheet-management .p-tabview .p-tabview-nav {
+    background: var(--surface-0);
+    border: none;
+    border-bottom: 1px solid var(--surface-200);
+    padding: 0 2rem;
+}
+
+.timesheet-management .p-tabview .p-tabview-nav li {
+    margin-right: 1rem;
+}
+
+.timesheet-management .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    padding: 1rem 1.5rem;
+    color: var(--text-600);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.timesheet-management .p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+    background: var(--surface-50);
+    color: var(--text-900);
+}
+
+.timesheet-management .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    background: var(--surface-0);
+    color: var(--primary-600);
+    font-weight: 600;
+}
+
+.timesheet-management .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-500);
+    border-radius: 3px 3px 0 0;
+}
+
+.timesheet-management .p-tabview .p-tabview-panels {
+    background: var(--surface-0);
+    border: none;
+    padding: 0;
+}
+
+.timesheet-management .p-tabview .p-tabview-panel {
+    padding: 0;
+}
+
+/* Tab content areas */
+.tab-content {
+    padding: 2rem;
+    min-height: calc(100vh - 200px);
+}
+
+.tab-content.full-height {
+    padding: 0;
+    min-height: calc(100vh - 140px);
+}
+
+/* Quick actions panel */
+.quick-actions {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.quick-actions h4 {
+    color: var(--text-900);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.quick-actions .grid {
+    margin: 0;
+}
+
+.quick-actions .grid .col {
+    padding: 0.5rem;
+}
+
+.quick-action-card {
+    background: var(--surface-50);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.quick-action-card:hover {
+    background: var(--surface-100);
+    border-color: var(--primary-300);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quick-action-card .icon {
+    font-size: 2.5rem;
+    color: var(--primary-500);
+}
+
+.quick-action-card .title {
+    font-weight: 600;
+    color: var(--text-900);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.quick-action-card .description {
+    color: var(--text-600);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Statistics panel */
+.stats-panel {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-panel h4 {
+    color: var(--text-900);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--surface-50) 0%, var(--surface-100) 100%);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-600);
+    line-height: 1;
+}
+
+.stat-card .label {
+    font-size: 0.9rem;
+    color: var(--text-600);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    font-weight: 500;
+}
+
+.stat-card .trend {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.stat-card .trend.positive {
+    color: var(--green-600);
+}
+
+.stat-card .trend.negative {
+    color: var(--red-600);
+}
+
+.stat-card .trend.neutral {
+    color: var(--text-500);
+}
+
+/* Recent activity */
+.recent-activity {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.recent-activity h4 {
+    color: var(--text-900);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--surface-100);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item .icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-50);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-600);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.activity-item .content {
+    flex: 1;
+}
+
+.activity-item .content .title {
+    font-weight: 500;
+    color: var(--text-900);
+    margin-bottom: 0.25rem;
+}
+
+.activity-item .content .description {
+    font-size: 0.9rem;
+    color: var(--text-600);
+    line-height: 1.4;
+}
+
+.activity-item .time {
+    font-size: 0.85rem;
+    color: var(--text-500);
+    flex-shrink: 0;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-600);
+}
+
+.empty-state .icon {
+    font-size: 4rem;
+    color: var(--text-400);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-700);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+}
+
+/* Loading state */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--text-600);
+}
+
+.loading-container .p-progressspinner {
+    margin-bottom: 1rem;
+}
+
+/* Error state */
+.error-container {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--red-600);
+}
+
+.error-container .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-container h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.error-container p {
+    color: var(--text-600);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Responsive design */
+@media screen and (max-width: 992px) {
+    .timesheet-management-header {
+        padding: 1.5rem;
+    }
+    
+    .tab-content {
+        padding: 1.5rem;
+    }
+    
+    .quick-actions,
+    .stats-panel,
+    .recent-activity {
+        padding: 1rem;
+    }
+    
+    .quick-action-card,
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .quick-action-card .icon {
+        font-size: 2rem;
+    }
+    
+    .stat-card .value {
+        font-size: 2rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .timesheet-management-header {
+        padding: 1rem;
+    }
+    
+    .timesheet-management-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .timesheet-management-header p {
+        font-size: 1rem;
+    }
+    
+    .timesheet-management .p-tabview .p-tabview-nav {
+        padding: 0 1rem;
+    }
+    
+    .timesheet-management .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .tab-content {
+        padding: 1rem;
+    }
+    
+    .quick-actions .grid .col {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-panel .grid .col {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .activity-item .icon {
+        align-self: flex-start;
+    }
+    
+    .activity-item .time {
+        align-self: flex-end;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .timesheet-management-header {
+        padding: 0.75rem;
+    }
+    
+    .timesheet-management-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .timesheet-management .p-tabview .p-tabview-nav {
+        padding: 0 0.75rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .timesheet-management .p-tabview .p-tabview-nav li {
+        margin-right: 0.5rem;
+    }
+    
+    .timesheet-management .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .tab-content {
+        padding: 0.75rem;
+    }
+    
+    .quick-actions,
+    .stats-panel,
+    .recent-activity {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-panel .grid .col {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 0.75rem;
+    }
+    
+    .quick-action-card .title {
+        font-size: 1rem;
+    }
+    
+    .quick-action-card .description {
+        font-size: 0.85rem;
+    }
+    
+    .stat-card .value {
+        font-size: 1.8rem;
+    }
+    
+    .stat-card .label {
+        font-size: 0.8rem;
+    }
+    
+    .activity-item .icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+    
+    .activity-item .content .title {
+        font-size: 0.9rem;
+    }
+    
+    .activity-item .content .description {
+        font-size: 0.8rem;
+    }
+    
+    .activity-item .time {
+        font-size: 0.8rem;
+    }
+}
+
+/* Animation utilities */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Focus styles for accessibility */
+.quick-action-card:focus,
+.stat-card:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .timesheet-management-header,
+    .timesheet-management .p-tabview .p-tabview-nav,
+    .quick-actions {
+        display: none;
+    }
+    
+    .tab-content {
+        padding: 0;
+    }
+    
+    .stats-panel,
+    .recent-activity {
+        break-inside: avoid;
+    }
+}

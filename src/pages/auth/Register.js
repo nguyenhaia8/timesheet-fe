@@ -4,13 +4,11 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Message } from 'primereact/message';
 import { Toast } from 'primereact/toast';
 import { Divider } from 'primereact/divider';
 import { classNames } from 'primereact/utils';
 import { useRef } from 'react';
-import { employeeService } from '../../services/employeeService';
 import './Register.css';
 
 const Register = ({ onSuccess, onSwitchToLogin }) => {
@@ -18,27 +16,33 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
         firstName: '',
         lastName: '',
         email: '',
-        username: '',
+        userName: '',
         password: '',
         confirmPassword: '',
-        phoneNumber: '',
-        departmentId: '',
         position: '',
-        hireDate: null,
-        employeeId: ''
+        departmentId: '',
+        managerId: '',
+        roles: ['EMPLOYEE']
     });
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const toast = useRef(null);
 
-    // Mock departments - in real app, fetch from API
+    // Mock departments and managers - in real app, fetch from API
     const departments = [
         { label: 'Information Technology', value: 1 },
         { label: 'Human Resources', value: 2 },
         { label: 'Finance', value: 3 },
         { label: 'Marketing', value: 4 },
         { label: 'Operations', value: 5 }
+    ];
+
+    const managers = [
+        { label: 'John Manager', value: 11 },
+        { label: 'Jane Supervisor', value: 12 },
+        { label: 'Bob Director', value: 13 },
+        { label: 'Alice Lead', value: 14 }
     ];
 
     const handleInputChange = (field, value) => {
@@ -74,10 +78,10 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
             newErrors.email = 'Please enter a valid email address';
         }
 
-        if (!formData.username.trim()) {
-            newErrors.username = 'Username is required';
-        } else if (formData.username.length < 3) {
-            newErrors.username = 'Username must be at least 3 characters long';
+        if (!formData.userName.trim()) {
+            newErrors.userName = 'Username is required';
+        } else if (formData.userName.length < 3) {
+            newErrors.userName = 'Username must be at least 3 characters long';
         }
 
         if (!formData.password) {
@@ -92,20 +96,12 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
             newErrors.confirmPassword = 'Passwords do not match';
         }
 
-        if (!formData.departmentId) {
-            newErrors.departmentId = 'Please select a department';
-        }
-
         if (!formData.position.trim()) {
             newErrors.position = 'Position is required';
         }
 
-        if (!formData.hireDate) {
-            newErrors.hireDate = 'Hire date is required';
-        }
-
-        if (!formData.employeeId.trim()) {
-            newErrors.employeeId = 'Employee ID is required';
+        if (!formData.departmentId) {
+            newErrors.departmentId = 'Please select a department';
         }
 
         setErrors(newErrors);
@@ -130,24 +126,37 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
         try {
             // Format the data for the API
             const registrationData = {
+                userName: formData.userName,
+                password: formData.password,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
-                username: formData.username,
-                password: formData.password,
-                phoneNumber: formData.phoneNumber,
-                departmentId: formData.departmentId,
                 position: formData.position,
-                hireDate: formData.hireDate.toISOString(),
-                employeeId: formData.employeeId
+                departmentId: formData.departmentId,
+                managerId: formData.managerId || null,
+                roles: formData.roles
             };
 
-            const response = await employeeService.register(registrationData);
+            // Make API call to real endpoint
+            const response = await fetch('http://localhost:8080/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registrationData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Registration failed');
+            }
+
+            const result = await response.json();
 
             toast.current.show({
                 severity: 'success',
                 summary: 'Registration Successful',
-                detail: response.message || 'Your account has been created and is pending approval. You will receive an email once approved.',
+                detail: result.message || 'Your account has been created successfully!',
                 life: 5000
             });
 
@@ -156,19 +165,18 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
                 firstName: '',
                 lastName: '',
                 email: '',
-                username: '',
+                userName: '',
                 password: '',
                 confirmPassword: '',
-                phoneNumber: '',
-                departmentId: '',
                 position: '',
-                hireDate: null,
-                employeeId: ''
+                departmentId: '',
+                managerId: '',
+                roles: ['EMPLOYEE']
             });
 
             // Call success callback if provided
             if (onSuccess) {
-                setTimeout(() => onSuccess(response), 2000);
+                setTimeout(() => onSuccess(result), 2000);
             }
 
         } catch (error) {
@@ -176,10 +184,8 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
             
             let errorMessage = 'An error occurred during registration. Please try again.';
             
-            if (error.status === 409) {
-                errorMessage = error.message || 'Username, email, or employee ID already exists.';
-            } else if (error.status === 500) {
-                errorMessage = 'Server error. Please try again later.';
+            if (error.message) {
+                errorMessage = error.message;
             }
 
             toast.current.show({
@@ -280,57 +286,27 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
                             </div>
 
                             <div className="form-field">
-                                <label htmlFor="phoneNumber" className="form-label">
-                                    Phone Number
+                                <label htmlFor="userName" className="form-label">
+                                    Username *
                                 </label>
                                 <InputText
-                                    id="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                                    placeholder="+1 (555) 123-4567"
+                                    id="userName"
+                                    value={formData.userName}
+                                    onChange={(e) => handleInputChange('userName', e.target.value)}
+                                    className={classNames({ 'p-invalid': errors.userName })}
+                                    placeholder="Choose a username"
                                 />
+                                {errors.userName && (
+                                    <small className="p-error">{errors.userName}</small>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     {/* Account Information Section */}
                     <div className="form-section">
-                        <h3 className="section-title">Account Information</h3>
+                        <h3 className="section-title">Account Security</h3>
                         
-                        <div className="form-row">
-                            <div className="form-field">
-                                <label htmlFor="username" className="form-label">
-                                    Username *
-                                </label>
-                                <InputText
-                                    id="username"
-                                    value={formData.username}
-                                    onChange={(e) => handleInputChange('username', e.target.value)}
-                                    className={classNames({ 'p-invalid': errors.username })}
-                                    placeholder="Choose a username"
-                                />
-                                {errors.username && (
-                                    <small className="p-error">{errors.username}</small>
-                                )}
-                            </div>
-
-                            <div className="form-field">
-                                <label htmlFor="employeeId" className="form-label">
-                                    Employee ID *
-                                </label>
-                                <InputText
-                                    id="employeeId"
-                                    value={formData.employeeId}
-                                    onChange={(e) => handleInputChange('employeeId', e.target.value)}
-                                    className={classNames({ 'p-invalid': errors.employeeId })}
-                                    placeholder="Your employee ID"
-                                />
-                                {errors.employeeId && (
-                                    <small className="p-error">{errors.employeeId}</small>
-                                )}
-                            </div>
-                        </div>
-
                         <div className="form-row">
                             <div className="form-field">
                                 <label htmlFor="password" className="form-label">
@@ -412,21 +388,17 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
 
                         <div className="form-row">
                             <div className="form-field">
-                                <label htmlFor="hireDate" className="form-label">
-                                    Hire Date *
+                                <label htmlFor="manager" className="form-label">
+                                    Manager
                                 </label>
-                                <Calendar
-                                    id="hireDate"
-                                    value={formData.hireDate}
-                                    onChange={(e) => handleInputChange('hireDate', e.value)}
-                                    className={classNames({ 'p-invalid': errors.hireDate })}
-                                    placeholder="Select your hire date"
-                                    showIcon
-                                    maxDate={new Date()}
+                                <Dropdown
+                                    id="manager"
+                                    value={formData.managerId}
+                                    options={managers}
+                                    onChange={(e) => handleInputChange('managerId', e.value)}
+                                    placeholder="Select your manager (optional)"
+                                    showClear
                                 />
-                                {errors.hireDate && (
-                                    <small className="p-error">{errors.hireDate}</small>
-                                )}
                             </div>
                         </div>
                     </div>

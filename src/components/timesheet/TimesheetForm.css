@@ -1,0 +1,226 @@
+/* Timesheet Form Styles */
+.timesheet-form {
+    width: 100%;
+    max-width: 100%;
+}
+
+.timesheet-form .form-section {
+    margin-bottom: 1.5rem;
+}
+
+.timesheet-form .form-section h5 {
+    color: var(--text-900);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--surface-200);
+    padding-bottom: 0.5rem;
+}
+
+.timesheet-form .field {
+    margin-bottom: 1rem;
+}
+
+.timesheet-form .field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-700);
+    font-size: 0.9rem;
+}
+
+.timesheet-form .field label.required::after {
+    content: " *";
+    color: var(--red-500);
+    font-weight: bold;
+}
+
+.timesheet-form .field .p-inputtext,
+.timesheet-form .field .p-calendar,
+.timesheet-form .field .p-dropdown {
+    width: 100%;
+}
+
+.timesheet-form .field .p-inputtext:focus,
+.timesheet-form .field .p-calendar:not(.p-disabled).p-focus,
+.timesheet-form .field .p-dropdown:not(.p-disabled).p-focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 0.2rem var(--primary-200);
+}
+
+.timesheet-form .field .p-invalid {
+    border-color: var(--red-500);
+}
+
+.timesheet-form .field .p-invalid:focus {
+    border-color: var(--red-500);
+    box-shadow: 0 0 0 0.2rem var(--red-200);
+}
+
+.timesheet-form .field .p-error {
+    color: var(--red-500);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Quick week buttons */
+.timesheet-form .quick-week-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.timesheet-form .quick-week-buttons .p-button {
+    min-width: 120px;
+}
+
+/* Period summary */
+.timesheet-form .period-summary {
+    background: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.timesheet-form .period-summary .pi {
+    color: var(--primary-500);
+    font-size: 1.1rem;
+}
+
+/* Information items */
+.timesheet-form .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.timesheet-form .info-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-600);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin: 0;
+}
+
+.timesheet-form .info-value {
+    font-size: 0.95rem;
+    color: var(--text-900);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timesheet-form .info-value .pi {
+    color: var(--primary-500);
+}
+
+/* Form actions */
+.timesheet-form .form-actions {
+    border-top: 1px solid var(--surface-200);
+    padding-top: 1.5rem;
+    margin-top: 2rem;
+}
+
+.timesheet-form .form-actions .p-button {
+    min-width: 140px;
+}
+
+/* Grid layout adjustments */
+.timesheet-form .grid {
+    margin: 0;
+}
+
+.timesheet-form .grid .col-12,
+.timesheet-form .grid .col-6 {
+    padding: 0.5rem;
+}
+
+/* Section dividers */
+.timesheet-form .p-divider {
+    margin: 1.5rem 0;
+}
+
+.timesheet-form .p-divider.p-divider-horizontal:before {
+    border-top: 1px solid var(--surface-200);
+}
+
+/* Loading state */
+.timesheet-form .form-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Calendar customization */
+.timesheet-form .p-calendar .p-datepicker {
+    min-width: 20rem;
+}
+
+.timesheet-form .p-calendar .p-datepicker .p-datepicker-header {
+    background: var(--primary-50);
+    border-bottom: 1px solid var(--primary-200);
+}
+
+/* Disabled field styling */
+.timesheet-form .p-inputtext:disabled,
+.timesheet-form .p-calendar:disabled {
+    background-color: var(--surface-100);
+    color: var(--text-600);
+    border-color: var(--surface-300);
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .timesheet-form .grid .col-6 {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .timesheet-form .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .timesheet-form .form-actions .p-button {
+        width: 100%;
+    }
+    
+    .timesheet-form .quick-week-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .timesheet-form .quick-week-buttons .p-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .timesheet-form .form-section {
+        margin-bottom: 1rem;
+    }
+    
+    .timesheet-form .form-section h5 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .timesheet-form .field {
+        margin-bottom: 0.75rem;
+    }
+    
+    .timesheet-form .grid .col-12,
+    .timesheet-form .grid .col-6 {
+        padding: 0.25rem;
+    }
+    
+    .timesheet-form .period-summary {
+        padding: 0.75rem;
+    }
+}

@@ -1,0 +1,381 @@
+/* Timesheet Weekly View Styles */
+.timesheet-weekly-view {
+    width: 100%;
+    height: 100%;
+}
+
+.timesheet-weekly-view .p-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.timesheet-weekly-view .p-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.timesheet-weekly-view .p-card-content {
+    flex: 1;
+    padding: 0;
+}
+
+/* Header section */
+.weekly-view-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    border-bottom: 1px solid var(--surface-200);
+    margin-bottom: 1.5rem;
+}
+
+.weekly-view-header h3 {
+    color: var(--text-900);
+    line-height: 1.2;
+}
+
+.weekly-view-header p {
+    color: var(--text-600);
+    font-weight: 500;
+}
+
+/* Week grid */
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0 1.5rem;
+}
+
+.day-column {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.day-column:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-300);
+    transform: translateY(-2px);
+}
+
+.day-column.weekend {
+    background: var(--surface-50);
+    border-color: var(--surface-300);
+}
+
+.day-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.day-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-700);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.day-date {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-900);
+}
+
+.day-hours {
+    margin: 0.5rem 0;
+}
+
+/* Entries section */
+.entries-section {
+    padding: 0 1.5rem;
+    flex: 1;
+}
+
+.entries-section h4 {
+    color: var(--text-900);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Data table customization */
+.timesheet-weekly-view .p-datatable {
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+}
+
+.timesheet-weekly-view .p-datatable .p-datatable-thead > tr > th {
+    background: var(--surface-50);
+    border-bottom: 1px solid var(--surface-200);
+    font-weight: 600;
+    color: var(--text-900);
+    padding: 0.75rem;
+}
+
+.timesheet-weekly-view .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--surface-100);
+}
+
+.timesheet-weekly-view .p-datatable .p-datatable-tbody > tr:hover {
+    background: var(--surface-50);
+}
+
+.timesheet-weekly-view .p-datatable-emptymessage {
+    background: var(--surface-50);
+    color: var(--text-600);
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Summary section */
+.summary-section {
+    padding: 1rem 1.5rem;
+    background: var(--surface-50);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--border-radius);
+    margin: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.summary-section .grid {
+    margin: 0;
+}
+
+.summary-section .grid .col-12,
+.summary-section .grid .col-4 {
+    padding: 0.5rem;
+}
+
+.summary-section .text-center > div:first-child {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-600);
+    line-height: 1.2;
+}
+
+.summary-section .text-center > div:last-child {
+    font-size: 0.85rem;
+    color: var(--text-600);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-top: 0.25rem;
+}
+
+/* Dialog form styling */
+.timesheet-weekly-view .p-dialog .p-dialog-content {
+    padding: 1.5rem;
+}
+
+.timesheet-weekly-view .field {
+    margin-bottom: 1rem;
+}
+
+.timesheet-weekly-view .field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-700);
+    font-size: 0.9rem;
+}
+
+.timesheet-weekly-view .field label.required::after {
+    content: " *";
+    color: var(--red-500);
+    font-weight: bold;
+}
+
+.timesheet-weekly-view .field .p-inputtext,
+.timesheet-weekly-view .field .p-dropdown,
+.timesheet-weekly-view .field .p-inputnumber,
+.timesheet-weekly-view .field .p-inputtextarea {
+    width: 100%;
+}
+
+/* Badges and tags */
+.timesheet-weekly-view .p-badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+}
+
+.timesheet-weekly-view .p-tag {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+}
+
+/* Action buttons */
+.timesheet-weekly-view .action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+}
+
+.timesheet-weekly-view .action-buttons .p-button {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* Card actions */
+.timesheet-weekly-view .card-actions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--surface-200);
+    background: var(--surface-0);
+}
+
+/* Responsive design */
+@media screen and (max-width: 992px) {
+    .week-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .day-column {
+        padding: 0.75rem;
+        min-height: 100px;
+    }
+    
+    .day-name {
+        font-size: 0.8rem;
+    }
+    
+    .day-date {
+        font-size: 1.1rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .weekly-view-header {
+        padding: 1rem;
+    }
+    
+    .weekly-view-header .flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .week-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0 1rem;
+    }
+    
+    .entries-section {
+        padding: 0 1rem;
+    }
+    
+    .summary-section {
+        margin: 0 1rem 1rem 1rem;
+    }
+    
+    .timesheet-weekly-view .card-actions {
+        padding: 1rem;
+    }
+    
+    .day-column {
+        padding: 0.5rem;
+        min-height: 80px;
+    }
+    
+    .summary-section .grid .col-4 {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .weekly-view-header {
+        padding: 0.75rem;
+    }
+    
+    .weekly-view-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .week-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+    }
+    
+    .entries-section {
+        padding: 0 0.5rem;
+    }
+    
+    .summary-section {
+        padding: 0.75rem;
+        margin: 0 0.5rem 0.5rem 0.5rem;
+    }
+    
+    .timesheet-weekly-view .card-actions {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .day-column {
+        padding: 0.4rem;
+        min-height: 70px;
+    }
+    
+    .day-name {
+        font-size: 0.75rem;
+    }
+    
+    .day-date {
+        font-size: 1rem;
+    }
+    
+    .timesheet-weekly-view .p-datatable .p-datatable-thead > tr > th,
+    .timesheet-weekly-view .p-datatable .p-datatable-tbody > tr > td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .summary-section .text-center > div:first-child {
+        font-size: 1.5rem;
+    }
+    
+    .summary-section .text-center > div:last-child {
+        font-size: 0.8rem;
+    }
+}
+
+/* Loading state */
+.timesheet-weekly-view .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Animation for day cards */
+@keyframes dayCardPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.day-column:hover {
+    animation: dayCardPulse 0.3s ease-in-out;
+}

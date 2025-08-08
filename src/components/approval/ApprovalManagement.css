@@ -1,0 +1,135 @@
+.approval-management {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.approval-management-header {
+    margin-bottom: 1.5rem;
+}
+
+.approval-management-header .p-card-body {
+    padding: 1.5rem;
+}
+
+.approval-management-header h2 {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.approval-management-header .pi-thumbs-up {
+    color: var(--primary-color);
+}
+
+.approval-tabs .p-tabview-nav {
+    background: var(--surface-50);
+    border-bottom: 1px solid var(--surface-200);
+}
+
+.approval-tabs .p-tabview-nav li .p-tabview-nav-link {
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    border: none;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.approval-tabs .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: var(--primary-color);
+    background: white;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.approval-tabs .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link:hover {
+    color: var(--primary-color);
+    background: var(--surface-100);
+}
+
+.approval-tabs .p-tabview-panels {
+    padding: 1.5rem;
+    background: white;
+}
+
+/* Statistics display */
+.approval-management-header .flex.gap-4 > div {
+    min-width: 60px;
+}
+
+.approval-management-header .text-2xl {
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.approval-management-header .text-sm {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Access denied styling */
+.approval-management .pi-lock {
+    color: var(--surface-400);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .approval-management-header .flex {
+        flex-direction: column;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+    }
+    
+    .approval-management-header h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .approval-management-header .flex.gap-4 {
+        width: 100%;
+        justify-content: space-around;
+        gap: 1rem !important;
+    }
+    
+    .approval-tabs .p-tabview-panels {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .approval-management-header .flex.gap-4 > div {
+        min-width: auto;
+        flex: 1;
+    }
+    
+    .approval-management-header .text-2xl {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* Tab content animations */
+.approval-tabs .p-tabview-panels {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced card styling */
+.approval-management .p-card {
+    border: 1px solid var(--surface-200);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.approval-management .p-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+}

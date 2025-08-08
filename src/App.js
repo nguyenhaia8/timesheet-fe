@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/common';
 import Dashboard from './pages/Dashboard';
 import { AuthPage } from './pages/auth';
+import { EmployeeManagement } from './components/employee';
+import { TimesheetManagement } from './components/timesheet';
+import ApprovalManagement from './components/approval/ApprovalManagement';
+import { AuthContext } from './context/AuthContext';
 import './App.css';
 
 // PrimeReact CSS imports
@@ -95,11 +100,23 @@ function App() {
 
   // Show main application if user is logged in
   return (
-    <div className="App">
-      <Layout user={user} onLogout={handleLogout}>
-        <Dashboard user={user} />
-      </Layout>
-    </div>
+    <AuthContext.Provider value={{ user, setUser, logout: handleLogout }}>
+      <Router>
+        <div className="App">
+          <Layout user={user} onLogout={handleLogout}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard user={user} />} />
+              <Route path="/admin/employees" element={<EmployeeManagement />} />
+              <Route path="/timesheets/*" element={<TimesheetManagement />} />
+              <Route path="/approvals" element={<ApprovalManagement user={user} />} />
+              {/* Add more routes as needed */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Layout>
+        </div>
+      </Router>
+    </AuthContext.Provider>
   );
 }
 

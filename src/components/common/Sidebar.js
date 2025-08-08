@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PanelMenu } from 'primereact/panelmenu';
 import { usePermissions } from '../../hooks/usePermissions';
 import './Sidebar.css';
 
 const Sidebar = ({ isVisible, user }) => {
     const permissions = usePermissions(user);
+    const navigate = useNavigate();
 
     // Define menu items based on user permissions
     const getMenuItems = () => {
@@ -23,19 +25,19 @@ const Sidebar = ({ isVisible, user }) => {
                 icon: 'pi pi-fw pi-clock',
                 items: [
                     {
-                        label: 'Current Timesheet',
+                        label: 'Timesheet Management',
                         icon: 'pi pi-fw pi-calendar-plus',
-                        command: () => navigate('/timesheet/current')
+                        command: () => navigate('/timesheets')
                     },
                     {
-                        label: 'All Timesheets',
-                        icon: 'pi pi-fw pi-list',
-                        command: () => navigate('/timesheets')
+                        label: 'Current Week',
+                        icon: 'pi pi-fw pi-calendar',
+                        command: () => navigate('/timesheets?view=weekly')
                     },
                     ...(permissions.canCreateTimesheets() ? [{
                         label: 'Create New',
                         icon: 'pi pi-fw pi-plus',
-                        command: () => navigate('/timesheet/create')
+                        command: () => navigate('/timesheets?action=create')
                     }] : [])
                 ]
             });
@@ -74,6 +76,43 @@ const Sidebar = ({ isVisible, user }) => {
                 icon: 'pi pi-fw pi-briefcase',
                 items: projectItems
             });
+        }
+
+        // Approvals section - for users who can view/approve timesheets
+        if (permissions.canViewApprovals() || permissions.canApproveTimesheets()) {
+            const approvalItems = [];
+
+            if (permissions.canViewApprovals()) {
+                approvalItems.push({
+                    label: 'Approval Queue',
+                    icon: 'pi pi-fw pi-clock',
+                    command: () => navigate('/approvals')
+                });
+            }
+
+            if (permissions.canApproveTimesheets()) {
+                approvalItems.push({
+                    label: 'Pending Reviews',
+                    icon: 'pi pi-fw pi-exclamation-circle',
+                    command: () => navigate('/approvals?tab=pending')
+                });
+            }
+
+            if (permissions.canViewApprovals()) {
+                approvalItems.push({
+                    label: 'Approval History',
+                    icon: 'pi pi-fw pi-history',
+                    command: () => navigate('/approvals?tab=history')
+                });
+            }
+
+            if (approvalItems.length > 0) {
+                commonItems.push({
+                    label: 'Approvals',
+                    icon: 'pi pi-fw pi-thumbs-up',
+                    items: approvalItems
+                });
+            }
         }
 
         // Team Management section - for managers
@@ -208,13 +247,6 @@ const Sidebar = ({ isVisible, user }) => {
         );
 
         return commonItems;
-    };
-
-    // Mock navigate function - replace with actual router navigation
-    const navigate = (path) => {
-        console.log('Navigate to:', path);
-        // Replace with your routing logic
-        // Example: history.push(path) or navigate(path) for React Router
     };
 
     return (

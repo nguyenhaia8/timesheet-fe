@@ -1,0 +1,159 @@
+.approval-form-dialog .p-dialog-header {
+    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+    border-bottom: 1px solid var(--primary-200);
+}
+
+.approval-form-header h3 {
+    color: var(--primary-700);
+}
+
+.approval-form-content {
+    padding: 0;
+}
+
+.employee-summary-card {
+    background: var(--surface-50);
+    border: 1px solid var(--surface-200);
+    border-radius: 8px;
+}
+
+.employee-summary-card .p-card-body {
+    padding: 1rem;
+}
+
+.approval-avatar {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-600));
+    color: white;
+    font-weight: bold;
+}
+
+.project-breakdown {
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-200);
+}
+
+.project-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface-100);
+    border: 1px solid var(--surface-300);
+    border-radius: 16px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.project-name {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.project-hours {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-radius: 12px;
+    padding: 0.125rem 0.5rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.decision-section {
+    padding: 1rem 0;
+}
+
+.decision-section h4 {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.action-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--surface-50);
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Button states */
+.p-button.p-button-success.p-button-raised {
+    background: var(--green-500);
+    border-color: var(--green-500);
+    box-shadow: 0 3px 6px rgba(34, 197, 94, 0.3);
+}
+
+.p-button.p-button-danger.p-button-raised {
+    background: var(--red-500);
+    border-color: var(--red-500);
+    box-shadow: 0 3px 6px rgba(239, 68, 68, 0.3);
+}
+
+/* Form styling */
+.field label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.p-inputtextarea {
+    border-radius: 6px;
+    border: 1px solid var(--surface-300);
+    transition: all 0.2s ease;
+}
+
+.p-inputtextarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem var(--primary-color-text);
+}
+
+.p-inputtextarea:disabled {
+    background: var(--surface-100);
+    color: var(--text-color-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .approval-form-dialog {
+        width: 95vw !important;
+        margin: 1rem;
+    }
+    
+    .employee-summary-card .flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+    
+    .decision-section .flex {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .decision-section .p-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Animation for action selection */
+.p-button-raised {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.p-button-outlined {
+    transition: all 0.2s ease;
+}
+
+/* Loading state */
+.p-button .pi-spinner {
+    margin-right: 0.5rem;
+}
+
+/* Error text styling */
+.text-red-500 {
+    color: var(--red-500);
+    font-size: 0.875rem;
+}
