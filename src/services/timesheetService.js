@@ -1,11 +1,10 @@
-// Timesheet Service - currently using mock API
-// When backend is ready, replace mock imports with actual HTTP client calls
+// Timesheet Service - using real backend API
+import { timesheetApi } from '../api/timesheet';
 
+// Import mock functions for features not yet implemented in real API
 import {
   getTimesheets,
   getTimesheetById,
-  getTimesheetsByEmployee,
-  getCurrentWeekTimesheet,
   createTimesheet,
   updateTimesheet,
   deleteTimesheet,
@@ -40,10 +39,21 @@ export const timesheetService = {
     }
   },
 
-  async getEmployeeTimesheets(employeeId, status = null) {
+  async getEmployeeTimesheets(employeeId, status = null, periodStart = null, periodEnd = null) {
     try {
-      const response = await getTimesheetsByEmployee(employeeId, status);
-      return response.data;
+      // Use real API for fetching employee timesheets
+      const response = await timesheetApi.getEmployeeTimesheets(employeeId, periodStart, periodEnd);
+      
+      if (response.success) {
+        // Filter by status if provided (since backend might not support status filtering yet)
+        let timesheets = response.data;
+        if (status && Array.isArray(timesheets)) {
+          timesheets = timesheets.filter(timesheet => timesheet.status === status);
+        }
+        return timesheets;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching employee timesheets:', error);
       throw error;
@@ -52,10 +62,32 @@ export const timesheetService = {
 
   async getCurrentWeekTimesheet(employeeId) {
     try {
-      const response = await getCurrentWeekTimesheet(employeeId);
-      return response.data;
+      // Use real API for current week timesheets
+      const response = await timesheetApi.getCurrentWeekTimesheets();
+      
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching current week timesheet:', error);
+      throw error;
+    }
+  },
+
+  // New method to get current user's timesheets for any period
+  async getCurrentUserTimesheets(periodStart = null, periodEnd = null) {
+    try {
+      const response = await timesheetApi.getCurrentUserTimesheets(periodStart, periodEnd);
+      
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
+    } catch (error) {
+      console.error('Error fetching current user timesheets:', error);
       throw error;
     }
   },
@@ -66,6 +98,22 @@ export const timesheetService = {
       return response.data;
     } catch (error) {
       console.error('Error creating timesheet:', error);
+      throw error;
+    }
+  },
+
+  // Create timesheet with entries using real API
+  async createTimesheetWithEntries(timesheetData) {
+    try {
+      const response = await timesheetApi.createTimesheetWithEntries(timesheetData);
+      
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
+    } catch (error) {
+      console.error('Error creating timesheet with entries:', error);
       throw error;
     }
   },

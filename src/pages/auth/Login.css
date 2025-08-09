@@ -63,8 +63,13 @@
     width: 100%;
 }
 
-.form-field .p-password input {
-    width: 100%;
+
+.form-field .p-password {
+    width: 100% !important;
+    display: block;
+}
+.form-field .p-password .p-password-input {
+    width: 100% !important;
 }
 
 .form-field .p-error {
@@ -130,38 +135,6 @@
     text-decoration: underline;
 }
 
-/* Demo Section */
-.demo-section {
-    padding: 0 2rem 2rem 2rem;
-    background: var(--surface-0);
-}
-
-.demo-text {
-    color: var(--text-color-secondary);
-    font-size: 0.875rem;
-    font-weight: 500;
-    background: var(--surface-0);
-    padding: 0 1rem;
-}
-
-.demo-description {
-    color: var(--text-color-secondary);
-    font-size: 0.875rem;
-    text-align: center;
-    margin: 0 0 1rem 0;
-    line-height: 1.5;
-}
-
-.demo-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.demo-buttons .p-button {
-    min-width: 120px;
-}
 
 /* Form validation styles */
 .p-invalid {
@@ -209,10 +182,6 @@
         padding: 1.5rem 1.5rem 1rem 1.5rem;
     }
 
-    .demo-section {
-        padding: 0 1.5rem 1.5rem 1.5rem;
-    }
-
     .login-title {
         font-size: 1.75rem;
     }
@@ -223,13 +192,6 @@
         gap: 1rem;
     }
 
-    .demo-buttons {
-        flex-direction: column;
-    }
-
-    .demo-buttons .p-button {
-        min-width: 100%;
-    }
 }
 
 @media (max-width: 480px) {
@@ -246,9 +208,6 @@
         padding: 1.5rem 1rem 1rem 1rem;
     }
 
-    .demo-section {
-        padding: 0 1rem 1rem 1rem;
-    }
 
     .login-title {
         font-size: 1.5rem;
@@ -313,19 +272,6 @@
     transform: translateY(0);
 }
 
-/* Demo button specific styling */
-.demo-buttons .p-button-outlined {
-    border-color: var(--primary-200);
-    color: var(--primary-600);
-}
-
-.demo-buttons .p-button-outlined:hover {
-    background: var(--primary-50);
-    border-color: var(--primary-300);
-    color: var(--primary-700);
-}
-
-/* Input autofill styling */
 .p-inputtext:-webkit-autofill,
 .p-password input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px var(--surface-0) inset;
@@ -345,9 +291,13 @@
     .login-card {
         border: 2px solid var(--text-color);
     }
-    
+    .form-field .p-password input {
+        width: 100%;
+    }
+
     .p-inputtext,
     .p-password input {
         border-width: 2px;
+        width: 100% !important;
     }
 }

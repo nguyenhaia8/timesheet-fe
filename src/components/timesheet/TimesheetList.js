@@ -14,6 +14,11 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { FilterMatchMode } from 'primereact/api';
 import { timesheetService } from '../../services/timesheetService';
 import { usePermissions } from '../../hooks/usePermissions';
+import { 
+  getWeekForDate, 
+  formatWeekRange, 
+  getTimesheetPeriodSuggestions
+} from '../../utils/dateUtils';
 import TimesheetForm from './TimesheetForm';
 import TimesheetDetail from './TimesheetDetail';
 import TimesheetWeeklyView from './TimesheetWeeklyView';
@@ -25,9 +30,7 @@ const TimesheetList = ({ user }) => {
     const [totalRecords, setTotalRecords] = useState(0);
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(10);
-    const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
         periodStartDate: { value: null, matchMode: FilterMatchMode.DATE_IS },
         periodEndDate: { value: null, matchMode: FilterMatchMode.DATE_IS }
@@ -40,6 +43,26 @@ const TimesheetList = ({ user }) => {
     const [showWeeklyDialog, setShowWeeklyDialog] = useState(false);
     const [selectedTimesheet, setSelectedTimesheet] = useState(null);
 
+    // Date range picker state for filtering timesheets
+    const getDefaultFromDate = () => {
+        const currentDate = new Date();
+        // Set to start of day to avoid time issues
+        currentDate.setHours(0, 0, 0, 0);
+        const oneMonthBefore = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+        oneMonthBefore.setHours(0, 0, 0, 0);
+        return oneMonthBefore;
+    };
+    
+    const getCurrentDate = () => {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        return currentDate;
+    };
+    
+    const [fromDate, setFromDate] = useState(getDefaultFromDate());
+    const [toDate, setToDate] = useState(getCurrentDate());
+    const [isDateRangeActive, setIsDateRangeActive] = useState(true); // Default to active since we have default dates
+
     const toast = useRef(null);
     const permissions = usePermissions(user);
 
@@ -51,28 +74,26 @@ const TimesheetList = ({ user }) => {
         { label: 'Rejected', value: 'Rejected' }
     ];
 
-    // Load initial data
+    // Load initial data with default date range
     useEffect(() => {
-        loadTimesheets();
+        if (fromDate && toDate) {
+            loadTimesheets(fromDate, toDate);
+        } else {
+            loadTimesheets();
+        }
     }, [first, rows, filters]);
 
-    const loadTimesheets = async () => {
+    const loadTimesheets = async (startDate = null, endDate = null) => {
         try {
             setLoading(true);
             let response;
 
-            // Load timesheets based on user permissions
-            if (permissions.canViewAllTimesheet()) {
-                // Admin/HR can see all timesheets
-                response = await timesheetService.getAllTimesheets({
-                    page: Math.floor(first / rows) + 1,
-                    limit: rows,
-                    filters: filters,
-                    search: globalFilter
-                });
+            // With the real API, all users only see their own timesheets
+            // The API automatically filters by the authenticated user's employee ID
+            if (startDate && endDate) {
+                response = await timesheetService.getCurrentUserTimesheets(startDate, endDate);
             } else {
-                // Employees see only their own timesheets
-                response = await timesheetService.getEmployeeTimesheets(user.employeeId);
+                response = await timesheetService.getCurrentUserTimesheets();
             }
 
             setTimesheets(response.data || response || []);
@@ -100,34 +121,17 @@ const TimesheetList = ({ user }) => {
         setFirst(0);
     };
 
-    const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        setGlobalFilter(value);
-        setFilters(prev => ({
-            ...prev,
-            global: { value, matchMode: FilterMatchMode.CONTAINS }
-        }));
-    };
-
     const handleCreate = () => {
-        if (!permissions.canCreateTimesheets()) {
-            toast.current.show({
-                severity: 'warn',
-                summary: 'Access Denied',
-                detail: 'You do not have permission to create timesheets',
-                life: 3000
-            });
-            return;
-        }
+        // All authenticated users can create their own timesheets
         setSelectedTimesheet(null);
         setShowCreateDialog(true);
     };
 
     const handleEdit = (timesheet) => {
-        if (!permissions.canEditTimesheet() || timesheet.status !== 'Draft') {
+        if (timesheet.status !== 'Draft') {
             toast.current.show({
                 severity: 'warn',
-                summary: 'Access Denied',
+                summary: 'Cannot Edit',
                 detail: 'You can only edit draft timesheets',
                 life: 3000
             });
@@ -186,10 +190,10 @@ const TimesheetList = ({ user }) => {
     };
 
     const handleDelete = (timesheet) => {
-        if (!permissions.canDeleteTimesheet() || timesheet.status !== 'Draft') {
+        if (timesheet.status !== 'Draft') {
             toast.current.show({
                 severity: 'warn',
-                summary: 'Access Denied',
+                summary: 'Cannot Delete',
                 detail: 'You can only delete draft timesheets',
                 life: 3000
             });
@@ -259,6 +263,130 @@ const TimesheetList = ({ user }) => {
         }
     };
 
+    // Handle from date change
+    const handleFromDateChange = async (e) => {
+        const selectedFromDate = e.value;
+        if (selectedFromDate) {
+            // Set to start of day to avoid time issues
+            selectedFromDate.setHours(0, 0, 0, 0);
+        }
+        setFromDate(selectedFromDate);
+        
+        if (selectedFromDate && toDate) {
+            // Validate that from date is not after to date
+            if (selectedFromDate > toDate) {
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Invalid Date Range',
+                    detail: 'From date cannot be after To date',
+                    life: 3000
+                });
+                return;
+            }
+            
+            setIsDateRangeActive(true);
+            toast.current.show({
+                severity: 'info',
+                summary: 'Date Range Updated',
+                detail: `Filtering from ${selectedFromDate.toLocaleDateString()} to ${toDate.toLocaleDateString()}`,
+                life: 3000
+            });
+
+            try {
+                await loadTimesheets(selectedFromDate, toDate);
+            } catch (error) {
+                console.error('Error loading timesheets for selected date range:', error);
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load timesheets for selected date range',
+                    life: 3000
+                });
+            }
+        } else if (!selectedFromDate) {
+            setIsDateRangeActive(false);
+            await loadTimesheets();
+        }
+    };
+
+    // Handle to date change
+    const handleToDateChange = async (e) => {
+        const selectedToDate = e.value;
+        if (selectedToDate) {
+            // Set to start of day to avoid time issues
+            selectedToDate.setHours(0, 0, 0, 0);
+        }
+        setToDate(selectedToDate);
+        
+        if (fromDate && selectedToDate) {
+            // Validate that to date is not before from date
+            if (selectedToDate < fromDate) {
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Invalid Date Range',
+                    detail: 'To date cannot be before From date',
+                    life: 3000
+                });
+                return;
+            }
+            
+            setIsDateRangeActive(true);
+            toast.current.show({
+                severity: 'info',
+                summary: 'Date Range Updated',
+                detail: `Filtering from ${fromDate.toLocaleDateString()} to ${selectedToDate.toLocaleDateString()}`,
+                life: 3000
+            });
+
+            try {
+                await loadTimesheets(fromDate, selectedToDate);
+            } catch (error) {
+                console.error('Error loading timesheets for selected date range:', error);
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load timesheets for selected date range',
+                    life: 3000
+                });
+            }
+        } else if (!selectedToDate) {
+            setIsDateRangeActive(false);
+            await loadTimesheets();
+        }
+    };
+
+    const clearDateRangeSelection = async () => {
+        setFromDate(null);
+        setToDate(null);
+        setIsDateRangeActive(false);
+        
+        // Reload all timesheets
+        await loadTimesheets();
+        toast.current.show({
+            severity: 'info',
+            summary: 'Filter Cleared',
+            detail: 'Showing all timesheets',
+            life: 3000
+        });
+    };
+
+    const resetToDefaultDateRange = async () => {
+        const defaultFromDate = getDefaultFromDate();
+        const defaultToDate = getCurrentDate();
+        
+        setFromDate(defaultFromDate);
+        setToDate(defaultToDate);
+        setIsDateRangeActive(true);
+        
+        await loadTimesheets(defaultFromDate, defaultToDate);
+        toast.current.show({
+            severity: 'info',
+            summary: 'Reset to Default',
+            detail: `Showing last month: ${defaultFromDate.toLocaleDateString()} to ${defaultToDate.toLocaleDateString()}`,
+            life: 3000
+        });
+    };
+
     // Helper functions
     const formatDateRange = (startDate, endDate) => {
         const start = new Date(startDate).toLocaleDateString();
@@ -272,13 +400,16 @@ const TimesheetList = ({ user }) => {
 
     // Column templates
     const periodBodyTemplate = (rowData) => {
+        const weekInfo = getWeekForDate(rowData.periodStartDate);
+        const weekRange = formatWeekRange(rowData.periodStartDate, rowData.periodEndDate);
+        
         return (
             <div className="timesheet-period">
                 <div className="period-dates font-medium">
-                    {formatDateRange(rowData.periodStartDate, rowData.periodEndDate)}
+                    {weekRange}
                 </div>
                 <div className="period-week text-sm text-500">
-                    Week of {formatDate(rowData.periodStartDate)}
+                    Week {weekInfo.weekNumber} of {weekInfo.monthYear}
                 </div>
             </div>
         );
@@ -323,9 +454,9 @@ const TimesheetList = ({ user }) => {
 
     const actionBodyTemplate = (rowData) => {
         const isDraft = rowData.status === 'Draft';
-        const canEdit = permissions.canEditTimesheet() && isDraft;
-        const canSubmit = permissions.canSubmitTimesheet() && isDraft;
-        const canDelete = permissions.canDeleteTimesheet() && isDraft;
+        const canEdit = isDraft; // Users can edit their own draft timesheets
+        const canSubmit = isDraft; // Users can submit their own draft timesheets
+        const canDelete = isDraft; // Users can delete their own draft timesheets
 
         return (
             <div className="flex gap-2">
@@ -371,8 +502,12 @@ const TimesheetList = ({ user }) => {
 
     // Toolbar
     const leftToolbarTemplate = () => {
+        return null; // Empty left side
+    };
+
+    const rightToolbarTemplate = () => {
         return (
-            <div className="flex gap-2">
+            <div className="flex align-items-center">
                 {permissions.canCreateTimesheets() && (
                     <Button
                         label="New Timesheet"
@@ -381,50 +516,6 @@ const TimesheetList = ({ user }) => {
                         onClick={handleCreate}
                     />
                 )}
-                <Button
-                    label="Current Week"
-                    icon="pi pi-calendar-plus"
-                    className="p-button-outlined"
-                    onClick={async () => {
-                        try {
-                            const currentWeek = await timesheetService.getCurrentWeekTimesheet(user.employeeId);
-                            if (currentWeek.data) {
-                                handleWeeklyView(currentWeek.data);
-                            } else {
-                                toast.current.show({
-                                    severity: 'info',
-                                    summary: 'No Timesheet',
-                                    detail: 'No timesheet found for current week',
-                                    life: 3000
-                                });
-                            }
-                        } catch (error) {
-                            console.error('Error loading current week timesheet:', error);
-                        }
-                    }}
-                />
-            </div>
-        );
-    };
-
-    const rightToolbarTemplate = () => {
-        return (
-            <div className="flex gap-2">
-                <span className="p-input-icon-left">
-                    <i className="pi pi-search" />
-                    <InputText
-                        value={globalFilter}
-                        onChange={onGlobalFilterChange}
-                        placeholder="Search timesheets..."
-                        className="w-20rem"
-                    />
-                </span>
-                <Button
-                    icon="pi pi-refresh"
-                    className="p-button-outlined"
-                    onClick={loadTimesheets}
-                    tooltip="Refresh"
-                />
             </div>
         );
     };
@@ -462,10 +553,95 @@ const TimesheetList = ({ user }) => {
 
             <div className="card">
                 <Toolbar 
-                    className="mb-4" 
+                    className="mb-3" 
                     start={leftToolbarTemplate} 
                     end={rightToolbarTemplate}
                 />
+
+                {/* Date Range Picker Section - Left Aligned */}
+                <div className="mb-4">
+                    <div className="flex align-items-center gap-3 flex-wrap">
+                        <label className="text-sm text-600 font-medium">
+                            Filter by Date Range:
+                        </label>
+                        
+                        <div className="flex align-items-center gap-2">
+                            <label htmlFor="fromDatePicker" className="text-sm text-500">
+                                From:
+                            </label>
+                            <Calendar
+                                id="fromDatePicker"
+                                value={fromDate}
+                                onChange={handleFromDateChange}
+                                placeholder="Select from date"
+                                showIcon
+                                dateFormat="yy-mm-dd"
+                                className="w-10rem"
+                                tooltip="Select start date for filtering"
+                                maxDate={toDate || getCurrentDate()} // Cannot select after 'to' date or future
+                                showClear
+                            />
+                        </div>
+                        
+                        <div className="flex align-items-center gap-2">
+                            <label htmlFor="toDatePicker" className="text-sm text-500">
+                                To:
+                            </label>
+                            <Calendar
+                                id="toDatePicker"
+                                value={toDate}
+                                onChange={handleToDateChange}
+                                placeholder="Select to date"
+                                showIcon
+                                dateFormat="yy-mm-dd"
+                                className="w-10rem"
+                                tooltip="Select end date for filtering"
+                                minDate={fromDate} // Cannot select before 'from' date
+                                maxDate={getCurrentDate()} // Cannot select future dates
+                                showClear
+                            />
+                        </div>
+                        
+                        <div className="flex gap-1">
+                            <Button
+                                icon="pi pi-times"
+                                className="p-button-rounded p-button-text p-button-sm"
+                                onClick={clearDateRangeSelection}
+                                tooltip="Clear date filter"
+                                disabled={!isDateRangeActive}
+                            />
+                            <Button
+                                icon="pi pi-refresh"
+                                className="p-button-rounded p-button-text p-button-sm"
+                                onClick={resetToDefaultDateRange}
+                                tooltip="Reset to last month"
+                            />
+                        </div>
+                        
+                        {/* Range Info Display */}
+                        {isDateRangeActive && fromDate && toDate && (
+                            <div className="text-sm text-600 border-left-2 border-primary pl-2">
+                                {fromDate.toLocaleDateString()} - {toDate.toLocaleDateString()}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Date Range Filter Info Panel */}
+                {isDateRangeActive && fromDate && toDate && (
+                    <div className="mb-3 p-2 border-round surface-100 border-left-3 border-primary">
+                        <div className="flex align-items-center gap-2">
+                            <i className="pi pi-filter text-primary"></i>
+                            <span className="text-sm">
+                                <strong>Filtered by Date Range:</strong> 
+                                {fromDate.toLocaleDateString()} to {toDate.toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-500">
+                                ({Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1} days)
+                            </span>
+                        </div>
+                    </div>
+                )}
 
                 <DataTable
                     value={timesheets}
@@ -480,7 +656,6 @@ const TimesheetList = ({ user }) => {
                     loading={loading}
                     filters={filters}
                     onFilter={onFilter}
-                    globalFilterFields={['status', 'periodStartDate', 'periodEndDate']}
                     emptyMessage="No timesheets found"
                     className="p-datatable-timesheets"
                     responsiveLayout="scroll"

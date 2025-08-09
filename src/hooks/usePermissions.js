@@ -46,7 +46,7 @@ export const usePermissions = (user) => {
 
     // Common permission checks for timesheet app
     canViewOwnTimesheet: () => 
-      hasPermission(permissions, PERMISSIONS.VIEW_OWN_TIMESHEET),
+      true, // All authenticated users can view their own timesheets
 
     canViewTeamTimesheet: () => 
       hasPermission(permissions, PERMISSIONS.VIEW_TEAM_TIMESHEET),
@@ -55,19 +55,19 @@ export const usePermissions = (user) => {
       hasPermission(permissions, PERMISSIONS.VIEW_ALL_TIMESHEET),
 
     canViewTimesheets: (scope = 'own') => 
-      hasTimesheetPermission(permissions, 'view', scope),
+      scope === 'own' ? true : hasTimesheetPermission(permissions, 'view', scope),
 
     canCreateTimesheets: (scope = 'own') => 
-      hasTimesheetPermission(permissions, 'create', scope),
+      scope === 'own' ? true : hasTimesheetPermission(permissions, 'create', scope),
 
     canEditTimesheet: (scope = 'own') => 
-      hasTimesheetPermission(permissions, 'edit', scope),
+      scope === 'own' ? true : hasTimesheetPermission(permissions, 'edit', scope),
 
     canDeleteTimesheet: (scope = 'own') => 
-      hasTimesheetPermission(permissions, 'delete', scope),
+      scope === 'own' ? true : hasTimesheetPermission(permissions, 'delete', scope),
 
     canSubmitTimesheet: () => 
-      hasPermission(permissions, PERMISSIONS.SUBMIT_OWN_TIMESHEET),
+      true, // All authenticated users can submit their own timesheets
 
     canApproveTimesheets: (scope = 'team') => 
       hasTimesheetPermission(permissions, 'approve', scope),

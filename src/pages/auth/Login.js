@@ -223,37 +223,6 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
                         />
                     </div>
                 </form>
-
-                <Divider align="center">
-                    <span className="demo-text">Demo Accounts</span>
-                </Divider>
-
-                <div className="demo-section">
-                    <p className="demo-description">
-                        Try the application with different user roles:
-                    </p>
-                    
-                    <div className="demo-buttons">
-                        <Button
-                            label="Employee Demo"
-                            icon="pi pi-user"
-                            className="p-button-outlined p-button-sm"
-                            onClick={() => handleDemoLogin('employee')}
-                        />
-                        <Button
-                            label="Manager Demo"
-                            icon="pi pi-users"
-                            className="p-button-outlined p-button-sm"
-                            onClick={() => handleDemoLogin('manager')}
-                        />
-                        <Button
-                            label="Admin Demo"
-                            icon="pi pi-cog"
-                            className="p-button-outlined p-button-sm"
-                            onClick={() => handleDemoLogin('admin')}
-                        />
-                    </div>
-                </div>
             </Card>
         </div>
     );

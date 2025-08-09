@@ -8,13 +8,13 @@ const TimesheetManagement = () => {
     const { user } = useAuth();
     const permissions = usePermissions(user);
 
-    // Check if user has permission to view timesheets
-    if (!permissions.canViewTimesheets()) {
+    // All authenticated users can view their own timesheets
+    if (!user) {
         return (
             <div className="card">
                 <Message
                     severity="warn"
-                    text="You do not have permission to view timesheets."
+                    text="Please log in to view your timesheets."
                 />
             </div>
         );

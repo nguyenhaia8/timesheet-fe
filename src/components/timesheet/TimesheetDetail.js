@@ -148,7 +148,7 @@ const TimesheetDetail = ({ timesheet, user, onEdit, onSubmit, onClose, permissio
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    {permissions.canEditTimesheet() && timesheet.status === 'Draft' && (
+                    {timesheet.status === 'Draft' && (
                         <Button
                             icon="pi pi-pencil"
                             label="Edit"
@@ -156,7 +156,7 @@ const TimesheetDetail = ({ timesheet, user, onEdit, onSubmit, onClose, permissio
                             onClick={onEdit}
                         />
                     )}
-                    {permissions.canSubmitTimesheet() && timesheet.status === 'Draft' && (
+                    {timesheet.status === 'Draft' && (
                         <Button
                             icon="pi pi-send"
                             label="Submit"
@@ -338,7 +338,7 @@ const TimesheetDetail = ({ timesheet, user, onEdit, onSubmit, onClose, permissio
                         className="p-button-text"
                         onClick={onClose}
                     />
-                    {permissions.canEditTimesheet() && timesheet.status === 'Draft' && (
+                    {timesheet.status === 'Draft' && (
                         <Button
                             label="Edit Timesheet"
                             icon="pi pi-pencil"
@@ -346,7 +346,7 @@ const TimesheetDetail = ({ timesheet, user, onEdit, onSubmit, onClose, permissio
                             onClick={onEdit}
                         />
                     )}
-                    {permissions.canSubmitTimesheet() && timesheet.status === 'Draft' && (
+                    {timesheet.status === 'Draft' && (
                         <Button
                             label="Submit for Approval"
                             icon="pi pi-send"
