@@ -7,8 +7,8 @@ import { useRef } from 'react';
 import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalForm from './ApprovalForm';
+import ApprovalList from './ApprovalList';
 import ApprovalService from '../../services/approvalService';
-// import { usePermissions } from '../../hooks/usePermissions';
 import './ApprovalManagement.css';
 
 const ApprovalManagement = ({ user }) => {
@@ -216,20 +216,17 @@ const ApprovalManagement = ({ user }) => {
         <div className="approval-management">
             <Toast ref={toast} />
             <ConfirmDialog />
-            
-            <div className="approval-management-header mb-4">
-                <Card>
+            <Card>
+                <div className="flex flex-column gap-4">
                     <div className="flex justify-content-between align-items-center">
                         <div>
                             <h2 className="text-2xl font-bold text-900 m-0 mb-2">
-                                <i className="pi pi-thumbs-up mr-3 text-primary"></i>
                                 Timesheet Approvals
                             </h2>
                             <p className="text-600 m-0">
                                 Review and approve submitted timesheets
                             </p>
                         </div>
-                        
                         {/* Statistics */}
                         {statistics && (
                             <div className="flex gap-4">
@@ -262,50 +259,8 @@ const ApprovalManagement = ({ user }) => {
                             </div>
                         )}
                     </div>
-                </Card>
-            </div>
-
-            <Card>
-                <TabView 
-                    activeIndex={activeIndex} 
-                    onTabChange={(e) => setActiveIndex(e.index)}
-                    className="approval-tabs"
-                >
-                    <TabPanel 
-                        header={`Pending (${pendingApprovals.length})`}
-                        leftIcon="pi pi-clock mr-2"
-                    >
-                        <ApprovalQueue
-                            approvals={pendingApprovals}
-                            loading={loading}
-                            actionLoading={actionLoading}
-                            onViewDetails={handleViewDetails}
-                            onApprovalAction={handleApprovalAction}
-                            onQuickApprove={handleQuickApprove}
-                            onBulkApprove={handleBulkApprove}
-                            onRefresh={handleRefresh}
-                            // permissions removed
-                            user={user}
-                            type="pending"
-                        />
-                    </TabPanel>
-                    
-                    <TabPanel 
-                        header={`History (${approvalHistory.length})`}
-                        leftIcon="pi pi-history mr-2"
-                    >
-                        <ApprovalQueue
-                            approvals={approvalHistory}
-                            loading={loading}
-                            actionLoading={actionLoading}
-                            onViewDetails={handleViewDetails}
-                            onRefresh={handleRefresh}
-                            // permissions removed
-                            user={user}
-                            type="history"
-                        />
-                    </TabPanel>
-                </TabView>
+                    <ApprovalList />
+                </div>
             </Card>
 
             {/* Approval Detail Dialog */}

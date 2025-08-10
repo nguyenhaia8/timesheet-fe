@@ -210,6 +210,23 @@ const TimesheetList = ({ user }) => {
             accept: async () => {
                 try {
                     await timesheetService.submitTimesheetForApproval(timesheet.timesheetId);
+                    // Create approval after timesheet submit
+                    try {
+                        const approval = await (await import('../../services/approvalService')).default.createApproval(timesheet.timesheetId, 'PENDING');
+                        toast.current.show({
+                            severity: 'success',
+                            summary: 'Approval Created',
+                            detail: `Approval created for timesheet #${timesheet.timesheetId}`,
+                            life: 3000
+                        });
+                    } catch (err) {
+                        toast.current.show({
+                            severity: 'error',
+                            summary: 'Approval Error',
+                            detail: 'Failed to create approval',
+                            life: 3000
+                        });
+                    }
                     toast.current.show({
                         severity: 'success',
                         summary: 'Success',
@@ -521,6 +538,7 @@ const TimesheetList = ({ user }) => {
         const canSubmit = isDraft;
         const canDelete = isDraft;
 
+
         return (
             <div className="flex gap-2">
                 <Button
@@ -559,6 +577,7 @@ const TimesheetList = ({ user }) => {
                         tooltip="Delete"
                     />
                 )}
+                {/* Approve button removed as requested */}
             </div>
         );
     };
