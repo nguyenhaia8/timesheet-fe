@@ -1,8 +1,30 @@
+// ...existing code...
 // Timesheet Service - using real backend API
 import { timesheetApi } from '../api/timesheet';
 
 // Service wrapper functions - these will be the public interface
 export const timesheetService = {
+  async updateTimesheetWithEntries(timesheetId, timesheetData) {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/timesheets/${timesheetId}/with-entries`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('authToken') && { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` })
+        },
+        body: JSON.stringify(timesheetData)
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error updating timesheet with entries:', error);
+      throw error;
+    }
+  },
   // Timesheet operations
   async getAllTimesheets(filters = {}) {
     try {

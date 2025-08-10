@@ -1,14 +1,14 @@
 import React from 'react';
 import TimesheetList from './TimesheetList';
 import { useAuth } from '../../context/AuthContext';
-import { usePermissions } from '../../hooks/usePermissions';
+
 import { Message } from 'primereact/message';
 
 const TimesheetManagement = () => {
     const { user } = useAuth();
-    const permissions = usePermissions(user);
 
-    // All authenticated users can view their own timesheets
+
+    
     if (!user) {
         return (
             <div className="card">

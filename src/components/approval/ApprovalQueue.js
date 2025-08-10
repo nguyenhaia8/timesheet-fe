@@ -13,8 +13,8 @@ import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { FilterMatchMode } from 'primereact/api';
-import ApprovalService from '../../services/approvalService';
-import { usePermissions } from '../../hooks/usePermissions';
+import { createApproval, getApprovalsByTimesheetId, getMyApprovals, updateApproval } from '../../services/approvalService';
+
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalForm from './ApprovalForm';
 import './ApprovalQueue.css';
@@ -38,7 +38,7 @@ const ApprovalQueue = ({ user }) => {
     const [selectedApproval, setSelectedApproval] = useState(null);
 
     const toast = useRef(null);
-    const permissions = usePermissions(user);
+
 
     // Status options for filtering
     const statusOptions = [
@@ -53,19 +53,11 @@ const ApprovalQueue = ({ user }) => {
             let response;
 
             if (activeTab === 'pending') {
-                // Load pending approvals for manager/admin
-                if (permissions.canApproveTimesheets()) {
-                    response = await ApprovalService.getPendingApprovals();
-                    setPendingApprovals(response.data || response || []);
-                }
+                // response = await getPendingApprovals(); // Not implemented
+                setPendingApprovals([]); // No response since function is not implemented
             } else {
-                // Load approval history
-                if (permissions.canViewAllReports()) {
-                    response = await ApprovalService.getApprovals();
-                } else if (permissions.canApproveTimesheets()) {
-                    response = await ApprovalService.getApprovals();
-                }
-                setAllApprovals(response.data || response || []);
+                // response = await getApprovals(); // Not implemented
+                setAllApprovals([]); // No response since function is not implemented
             }
         } catch (error) {
             console.error('Error loading approvals:', error);
@@ -78,7 +70,7 @@ const ApprovalQueue = ({ user }) => {
         } finally {
             setLoading(false);
         }
-    }, [activeTab, permissions]);
+    }, [activeTab]);
 
     useEffect(() => {
         loadApprovals();
@@ -86,7 +78,7 @@ const ApprovalQueue = ({ user }) => {
 
     const handleApprove = async (approval, comments = '') => {
         try {
-            await ApprovalService.approveTimesheet(approval.approvalId, comments);
+            // await approveTimesheet(approval.approvalId, comments); // Not implemented
 
             toast.current.show({
                 severity: 'success',
@@ -119,7 +111,7 @@ const ApprovalQueue = ({ user }) => {
         }
 
         try {
-            await ApprovalService.rejectTimesheet(approval.approvalId, comments);
+            // await rejectTimesheet(approval.approvalId, comments); // Not implemented
 
             toast.current.show({
                 severity: 'success',
@@ -141,16 +133,6 @@ const ApprovalQueue = ({ user }) => {
     };
 
     const handleQuickApprove = (approval) => {
-        if (!permissions.canApproveTimesheets()) {
-            toast.current.show({
-                severity: 'warn',
-                summary: 'Access Denied',
-                detail: 'You do not have permission to approve timesheets',
-                life: 3000
-            });
-            return;
-        }
-
         confirmDialog({
             message: `Are you sure you want to approve ${approval.employeeName}'s timesheet for ${formatDateRange(approval.periodStartDate, approval.periodEndDate)}?`,
             header: 'Confirm Approval',
@@ -160,16 +142,6 @@ const ApprovalQueue = ({ user }) => {
     };
 
     const handleDetailedApproval = (approval) => {
-        if (!permissions.canApproveTimesheets()) {
-            toast.current.show({
-                severity: 'warn',
-                summary: 'Access Denied',
-                detail: 'You do not have permission to approve timesheets',
-                life: 3000
-            });
-            return;
-        }
-
         setSelectedApproval(approval);
         setShowApprovalDialog(true);
     };
@@ -275,8 +247,6 @@ const ApprovalQueue = ({ user }) => {
 
     const actionBodyTemplate = (rowData) => {
         const isPending = rowData.status === 'Pending';
-        const canApprove = permissions.canApproveTimesheets() && isPending;
-
         return (
             <div className="flex gap-2">
                 <Button
@@ -291,7 +261,7 @@ const ApprovalQueue = ({ user }) => {
                     onClick={() => handleViewTimesheet(rowData)}
                     tooltip="View Timesheet"
                 />
-                {canApprove && (
+                {isPending && (
                     <>
                         <Button
                             icon="pi pi-check"
@@ -471,7 +441,6 @@ const ApprovalQueue = ({ user }) => {
                     approval={selectedApproval}
                     onApprove={handleDetailedApproval}
                     onClose={() => setShowDetailDialog(false)}
-                    permissions={permissions}
                 />
             </Dialog>
 

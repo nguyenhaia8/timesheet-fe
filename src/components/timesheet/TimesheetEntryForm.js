@@ -6,8 +6,9 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import timesheetService from '../../services/timesheetService';
+import { projectService } from '../../services/projectService';
 
-const TimesheetEntryForm = ({ timesheetId, projects = [], entry, onSuccess }) => {
+const TimesheetEntryForm = ({ timesheetId, projects = [], entry, onSuccess, onEntryChange }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const [date, setDate] = useState(entry ? new Date(entry.date) : today);
@@ -15,8 +16,19 @@ const TimesheetEntryForm = ({ timesheetId, projects = [], entry, onSuccess }) =>
     const [taskDescription, setTaskDescription] = useState(entry ? entry.taskDescription : '');
     const [hoursWorked, setHoursWorked] = useState(entry ? entry.hoursWorked : 0);
     const [loading, setLoading] = useState(false);
+    const [projectOptions, setProjectOptions] = useState([]);
 
     useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await projectService.getProjects();
+                const projectsData = response.data || response || [];
+                setProjectOptions(projectsData.map(p => ({ label: p.name, value: p.projectId })));
+            } catch (error) {
+                setProjectOptions([]);
+            }
+        };
+        fetchProjects();
         if (entry) {
             setDate(new Date(entry.date));
             setProjectId(entry.projectId);
@@ -27,27 +39,19 @@ const TimesheetEntryForm = ({ timesheetId, projects = [], entry, onSuccess }) =>
         }
     }, [entry]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            const entryData = {
-                date: date ? date.toISOString().slice(0, 10) : '',
-                projectId,
-                taskDescription,
-                hoursWorked: Number(hoursWorked)
-            };
-            if (entry && entry.entryId) {
-                await timesheetService.updateTimesheetEntry(entry.entryId, entryData);
-            } else {
-                await timesheetService.addTimesheetEntry(timesheetId, entryData);
-            }
-            if (onSuccess) onSuccess();
-        } catch (error) {
-            // handle error
-        } finally {
-            setLoading(false);
-        }
+        const entryData = {
+            entryId: entry && entry.entryId ? entry.entryId : Math.random().toString(36).substr(2, 9),
+            date: date ? date.toISOString().slice(0, 10) : '',
+            projectId,
+            taskDescription,
+            hoursWorked: Number(hoursWorked)
+        };
+        if (onEntryChange) onEntryChange(entryData);
+        if (onSuccess) onSuccess();
+        setLoading(false);
     };
 
     // Calculate current week range (Monday to today)
@@ -82,7 +86,7 @@ const TimesheetEntryForm = ({ timesheetId, projects = [], entry, onSuccess }) =>
             </div>
             <div className="field mb-3">
                 <label htmlFor="entry-project">Project</label>
-                <Dropdown id="entry-project" value={projectId} options={projects.map(p => ({ label: p.name, value: p.projectId }))} onChange={e => setProjectId(e.value)} placeholder="Select Project" required className="w-full" />
+                <Dropdown id="entry-project" value={projectId} options={projectOptions} onChange={e => setProjectId(e.value)} placeholder="Select Project" required className="w-full" />
             </div>
             <div className="field mb-3">
                 <label htmlFor="entry-task">Task Description</label>

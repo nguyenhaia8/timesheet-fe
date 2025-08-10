@@ -13,7 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { FilterMatchMode } from 'primereact/api';
 import { timesheetService } from '../../services/timesheetService';
-import { usePermissions } from '../../hooks/usePermissions';
+
 import { 
   getWeekForDate, 
   formatWeekRange, 
@@ -36,7 +36,7 @@ const TimesheetList = ({ user }) => {
         periodEndDate: { value: null, matchMode: FilterMatchMode.DATE_IS }
     });
 
-    // Dialog states
+    
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [createDialogTimesheetId, setCreateDialogTimesheetId] = useState(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -44,10 +44,10 @@ const TimesheetList = ({ user }) => {
     const [showWeeklyDialog, setShowWeeklyDialog] = useState(false);
     const [selectedTimesheet, setSelectedTimesheet] = useState(null);
 
-    // Date range picker state for filtering timesheets
+    
     const getDefaultFromDate = () => {
         const currentDate = new Date();
-        // Set to start of day to avoid time issues
+        
         currentDate.setHours(0, 0, 0, 0);
         const oneMonthBefore = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
         oneMonthBefore.setHours(0, 0, 0, 0);
@@ -62,11 +62,11 @@ const TimesheetList = ({ user }) => {
     
     const [fromDate, setFromDate] = useState(getDefaultFromDate());
     const [toDate, setToDate] = useState(getCurrentDate());
-    const [isDateRangeActive, setIsDateRangeActive] = useState(true); // Default to active since we have default dates
+    const [isDateRangeActive, setIsDateRangeActive] = useState(true);
 
     const toast = useRef(null);
 
-    // Status options
+    
     const statusOptions = [
         { label: 'Draft', value: 'Draft' },
         { label: 'Submitted', value: 'Submitted' },
@@ -74,7 +74,7 @@ const TimesheetList = ({ user }) => {
         { label: 'Rejected', value: 'Rejected' }
     ];
 
-    // Load initial data with default date range
+    
     useEffect(() => {
         if (fromDate && toDate) {
             loadTimesheets(fromDate, toDate);
@@ -88,8 +88,7 @@ const TimesheetList = ({ user }) => {
             setLoading(true);
             let response;
 
-            // With the real API, all users only see their own timesheets
-            // The API automatically filters by the authenticated user's employee ID
+            
             if (startDate && endDate) {
                 response = await timesheetService.getCurrentUserTimesheets(startDate, endDate);
             } else {
@@ -122,10 +121,10 @@ const TimesheetList = ({ user }) => {
     };
 
     const handleCreate = () => {
-        // Get employeeId from session/localStorage
+        
         const userData = localStorage.getItem('userData');
         const employeeId = userData ? JSON.parse(userData).employee?.id : null;
-        // Calculate current week (Monday to today)
+        
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const dayOfWeek = today.getDay();
@@ -136,11 +135,11 @@ const TimesheetList = ({ user }) => {
         const periodStart = startOfWeek.toISOString().slice(0, 10);
         const periodEnd = today.toISOString().slice(0, 10);
 
-        // Fetch timesheet for employee and week
+        
         const fetchTimesheet = async () => {
             try {
                 const timesheets = await timesheetService.getEmployeeTimesheets(employeeId, null, periodStart, periodEnd);
-                // Use the first timesheet for the week, or null if none
+                
                 const timesheet = Array.isArray(timesheets) && timesheets.length > 0 ? timesheets[0] : null;
                 setCreateDialogTimesheetId(timesheet ? timesheet.timesheetId : null);
                 setSelectedTimesheet(null);
@@ -209,37 +208,45 @@ const TimesheetList = ({ user }) => {
             icon: 'pi pi-check-circle',
             accept: async () => {
                 try {
-                    await timesheetService.submitTimesheetForApproval(timesheet.timesheetId);
-                    // Create approval after timesheet submit
-                    try {
-                        const approval = await (await import('../../services/approvalService')).default.createApproval(timesheet.timesheetId, 'PENDING');
+                    // Prepare approval payload
+                    const userData = localStorage.getItem('userData');
+                    const managerId = userData ? JSON.parse(userData).infoUser?.managerId : null;
+                    const approvalPayload = {
+                        timesheetId: timesheet.timesheetId,
+                        approvedBy: managerId,
+                        status: 'PENDING',
+                        comments: ''
+                    };
+                    // Dynamically import approvalService
+                    const approvalService = (await import('../../services/approvalService')).default;
+                    const approvalResult = await approvalService.createApproval(approvalPayload);
+                    if (approvalResult && !approvalResult.error) {
+                        // Only update timesheet if approval creation succeeded
+                        const updatePayload = {
+                            ...timesheet,
+                            status: 'SUBMITTED'
+                        };
+                        await timesheetService.updateTimesheetWithEntries(timesheet.timesheetId, updatePayload);
                         toast.current.show({
                             severity: 'success',
-                            summary: 'Approval Created',
-                            detail: `Approval created for timesheet #${timesheet.timesheetId}`,
+                            summary: 'Success',
+                            detail: 'Approval created and timesheet submitted successfully',
                             life: 3000
                         });
-                    } catch (err) {
+                        loadTimesheets();
+                    } else {
                         toast.current.show({
                             severity: 'error',
                             summary: 'Approval Error',
-                            detail: 'Failed to create approval',
+                            detail: 'Failed to create approval. Timesheet not submitted.',
                             life: 3000
                         });
                     }
-                    toast.current.show({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Timesheet submitted successfully',
-                        life: 3000
-                    });
-                    loadTimesheets();
                 } catch (error) {
-                    console.error('Error submitting timesheet:', error);
                     toast.current.show({
                         severity: 'error',
                         summary: 'Error',
-                        detail: 'Failed to submit timesheet',
+                        detail: 'Failed to submit timesheet and/or create approval',
                         life: 3000
                     });
                 }
@@ -328,17 +335,17 @@ const TimesheetList = ({ user }) => {
         }
     };
 
-    // Handle from date change
+    
     const handleFromDateChange = async (e) => {
         const selectedFromDate = e.value;
         if (selectedFromDate) {
-            // Set to start of day to avoid time issues
+            
             selectedFromDate.setHours(0, 0, 0, 0);
         }
         setFromDate(selectedFromDate);
         
         if (selectedFromDate && toDate) {
-            // Validate that from date is not after to date
+            
             if (selectedFromDate > toDate) {
                 toast.current.show({
                     severity: 'warn',
@@ -374,17 +381,17 @@ const TimesheetList = ({ user }) => {
         }
     };
 
-    // Handle to date change
+    
     const handleToDateChange = async (e) => {
         const selectedToDate = e.value;
         if (selectedToDate) {
-            // Set to start of day to avoid time issues
+            
             selectedToDate.setHours(0, 0, 0, 0);
         }
         setToDate(selectedToDate);
         
         if (fromDate && selectedToDate) {
-            // Validate that to date is not before from date
+            
             if (selectedToDate < fromDate) {
                 toast.current.show({
                     severity: 'warn',
@@ -425,7 +432,7 @@ const TimesheetList = ({ user }) => {
         setToDate(null);
         setIsDateRangeActive(false);
         
-        // Reload all timesheets
+        
         await loadTimesheets();
         toast.current.show({
             severity: 'info',
@@ -452,7 +459,7 @@ const TimesheetList = ({ user }) => {
         });
     };
 
-    // Helper functions
+
     const formatDateRange = (startDate, endDate) => {
         const start = new Date(startDate).toLocaleDateString();
         const end = new Date(endDate).toLocaleDateString();
@@ -794,6 +801,53 @@ const TimesheetList = ({ user }) => {
             >
                 <TimesheetEntryList
                     timesheetId={createDialogTimesheetId}
+                    initialEntries={[]}
+                    editable
+                    saveButtonLabel="Save Draft"
+                    onSave={async (entries) => {
+                        try {
+                            const userData = localStorage.getItem('userData');
+                            const employeeId = userData ? JSON.parse(userData).employee?.id : null;
+                            let payload;
+                            if (createDialogTimesheetId) {
+                                // PUT update existing timesheet with new entries
+                                payload = {
+                                    ...timesheets.find(ts => ts.timesheetId === createDialogTimesheetId),
+                                    timeSheetEntries: entries
+                                };
+                                await timesheetService.updateTimesheetWithEntries(createDialogTimesheetId, payload);
+                                toast.current.show({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Timesheet and entries updated successfully',
+                                    life: 3000
+                                });
+                            } else {
+                                // POST create new timesheet with entries
+                                payload = {
+                                    employeeId,
+                                    timeSheetEntries: entries
+                                };
+                                await timesheetService.createTimesheetWithEntries(payload);
+                                toast.current.show({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Timesheet and entries created successfully',
+                                    life: 3000
+                                });
+                            }
+                            setShowCreateDialog(false);
+                            loadTimesheets();
+                        } catch (error) {
+                            toast.current.show({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Failed to save timesheet and entries',
+                                life: 3000
+                            });
+                        }
+                    }}
+                    onCancel={() => setShowCreateDialog(false)}
                 />
             </Dialog>
 
@@ -810,11 +864,15 @@ const TimesheetList = ({ user }) => {
                 {selectedTimesheet && (
                     <TimesheetEntryList
                         timesheetId={selectedTimesheet.timesheetId}
+                        initialEntries={selectedTimesheet.timeSheetEntries}
                         editable
                         onSave={async (updatedEntries) => {
-                            // Call backend to update timesheet and entries
                             try {
-                                await timesheetService.updateTimesheetWithEntries(selectedTimesheet.timesheetId, updatedEntries);
+                                const payload = {
+                                    ...selectedTimesheet,
+                                    timeSheetEntries: updatedEntries
+                                };
+                                await timesheetService.updateTimesheetWithEntries(selectedTimesheet.timesheetId, payload);
                                 toast.current.show({
                                     severity: 'success',
                                     summary: 'Success',

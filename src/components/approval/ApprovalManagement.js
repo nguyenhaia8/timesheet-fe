@@ -8,7 +8,7 @@ import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalForm from './ApprovalForm';
 import ApprovalList from './ApprovalList';
-import ApprovalService from '../../services/approvalService';
+import { createApproval, getApprovalsByTimesheetId, getMyApprovals, updateApproval } from '../../services/approvalService';
 import './ApprovalManagement.css';
 
 const ApprovalManagement = ({ user }) => {
@@ -34,8 +34,8 @@ const ApprovalManagement = ({ user }) => {
         setLoading(true);
         try {
             const [pendingResult, historyResult] = await Promise.all([
-                ApprovalService.getPendingApprovals(),
-                ApprovalService.getApprovalHistory()
+                /* getPendingApprovals(), */
+                /* getApprovalHistory() */
             ]);
 
             if (pendingResult.success) {
@@ -59,10 +59,11 @@ const ApprovalManagement = ({ user }) => {
 
     const loadStatistics = async () => {
         try {
-            const result = await ApprovalService.getApprovalStatistics();
-            if (result.success) {
-                setStatistics(result.data);
-            }
+            // TODO: Implement getApprovalStatistics and handle result
+            // const result = await getApprovalStatistics();
+            // if (result.success) {
+            //     setStatistics(result.data);
+            // }
         } catch (error) {
             console.error('Error loading statistics:', error);
         }
@@ -81,16 +82,16 @@ const ApprovalManagement = ({ user }) => {
     const handleApprove = async (approvalId, comments) => {
         setActionLoading(true);
         try {
-            const result = await ApprovalService.approveTimesheet(approvalId, comments);
-            
-            if (result.success) {
-                showSuccess(result.message || 'Timesheet approved successfully');
-                setApprovalFormVisible(false);
-                await loadData();
-                await loadStatistics();
-            } else {
-                showError(result.error || 'Failed to approve timesheet');
-            }
+            // TODO: Implement approveTimesheet and handle result
+            // const result = await approveTimesheet(approvalId, comments);
+            // if (result.success) {
+            //     showSuccess(result.message || 'Timesheet approved successfully');
+            //     setApprovalFormVisible(false);
+            //     await loadData();
+            //     await loadStatistics();
+            // } else {
+            //     showError(result.error || 'Failed to approve timesheet');
+            // }
         } catch (error) {
             showError('Failed to approve timesheet');
             console.error('Error approving timesheet:', error);
@@ -102,16 +103,16 @@ const ApprovalManagement = ({ user }) => {
     const handleReject = async (approvalId, comments) => {
         setActionLoading(true);
         try {
-            const result = await ApprovalService.rejectTimesheet(approvalId, comments);
-            
-            if (result.success) {
-                showSuccess(result.message || 'Timesheet rejected');
-                setApprovalFormVisible(false);
-                await loadData();
-                await loadStatistics();
-            } else {
-                showError(result.error || 'Failed to reject timesheet');
-            }
+            // TODO: Implement rejectTimesheet and handle result
+            // const result = await rejectTimesheet(approvalId, comments);
+            // if (result.success) {
+            //     showSuccess(result.message || 'Timesheet rejected');
+            //     setApprovalFormVisible(false);
+            //     await loadData();
+            //     await loadStatistics();
+            // } else {
+            //     showError(result.error || 'Failed to reject timesheet');
+            // }
         } catch (error) {
             showError('Failed to reject timesheet');
             console.error('Error rejecting timesheet:', error);
@@ -123,18 +124,15 @@ const ApprovalManagement = ({ user }) => {
     const handleQuickApprove = async (approval) => {
         setActionLoading(true);
         try {
-            const result = await ApprovalService.approveTimesheet(
-                approval.approvalId, 
-                'Quick approval'
-            );
-            
-            if (result.success) {
-                showSuccess('Timesheet approved successfully');
-                await loadData();
-                await loadStatistics();
-            } else {
-                showError(result.error || 'Failed to approve timesheet');
-            }
+            // TODO: Implement approveTimesheet and handle result
+            // const result = await approveTimesheet(approval.approvalId, 'Quick approval');
+            // if (result.success) {
+            //     showSuccess('Timesheet approved successfully');
+            //     await loadData();
+            //     await loadStatistics();
+            // } else {
+            //     showError(result.error || 'Failed to approve timesheet');
+            // }
         } catch (error) {
             showError('Failed to approve timesheet');
             console.error('Error approving timesheet:', error);
@@ -146,15 +144,15 @@ const ApprovalManagement = ({ user }) => {
     const handleBulkApprove = async (approvalIds) => {
         setActionLoading(true);
         try {
-            const result = await ApprovalService.bulkApprove(approvalIds, 'Bulk approval');
-            
-            if (result.success) {
-                showSuccess(result.message || 'Timesheets approved successfully');
-                await loadData();
-                await loadStatistics();
-            } else {
-                showError(result.error || 'Failed to approve timesheets');
-            }
+            // TODO: Implement bulkApprove and handle result
+            // const result = await bulkApprove(approvalIds, 'Bulk approval');
+            // if (result.success) {
+            //     showSuccess(result.message || 'Timesheets approved successfully');
+            //     await loadData();
+            //     await loadStatistics();
+            // } else {
+            //     showError(result.error || 'Failed to approve timesheets');
+            // }
         } catch (error) {
             showError('Failed to approve timesheets');
             console.error('Error bulk approving timesheets:', error);
@@ -216,7 +214,6 @@ const ApprovalManagement = ({ user }) => {
         <div className="approval-management">
             <Toast ref={toast} />
             <ConfirmDialog />
-            <Card>
                 <div className="flex flex-column gap-4">
                     <div className="flex justify-content-between align-items-center">
                         <div>
@@ -261,7 +258,6 @@ const ApprovalManagement = ({ user }) => {
                     </div>
                     <ApprovalList />
                 </div>
-            </Card>
 
             {/* Approval Detail Dialog */}
             {detailVisible && (

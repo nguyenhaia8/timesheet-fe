@@ -6,14 +6,16 @@ import { Dialog } from 'primereact/dialog';
 import timesheetService from '../../services/timesheetService';
 import TimesheetEntryForm from './TimesheetEntryForm';
 
-const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
-    const [entries, setEntries] = useState([]);
+const TimesheetEntryList = ({ timesheetId, projects = [], initialEntries = null }) => {
+    const [entries, setEntries] = useState(initialEntries || []);
     const [loading, setLoading] = useState(false);
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState(null);
 
     useEffect(() => {
-        if (timesheetId) {
+        if (initialEntries && initialEntries.length > 0) {
+            setEntries(initialEntries);
+        } else if (timesheetId) {
             loadEntries();
         }
     }, [timesheetId]);
@@ -40,7 +42,6 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
 
     const handleEntryAdded = () => {
         setShowAddDialog(false);
-        loadEntries();
     };
 
     const getProjectName = (projectId) => {
@@ -53,14 +54,21 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
         setShowAddDialog(true);
     };
 
-    const handleDeleteEntry = async (entry) => {
+    const handleDeleteEntry = (entry) => {
         if (window.confirm('Are you sure you want to delete this entry?')) {
-            try {
-                await timesheetService.deleteTimesheetEntry(entry.entryId);
-                loadEntries();
-            } catch (error) {
-            }
+            setEntries(prev => prev.filter(e => e.entryId !== entry.entryId));
         }
+    };
+    const handleEntryChange = (newEntry) => {
+        setEntries(prev => {
+            const exists = prev.find(e => e.entryId === newEntry.entryId);
+            if (exists) {
+                return prev.map(e => e.entryId === newEntry.entryId ? newEntry : e);
+            } else {
+                return [...prev, newEntry];
+            }
+        });
+        setShowAddDialog(false);
     };
 
     const actionBodyTemplate = (rowData) => (
@@ -76,7 +84,6 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
 
     const handleSaveDraft = async () => {
         try {
-            // Get employeeId from localStorage userData
             const userData = localStorage.getItem('userData');
             const employeeId = userData ? JSON.parse(userData).employee?.id : null;
             if (!employeeId) {
@@ -84,7 +91,6 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
                 return;
             }
 
-            // Calculate current week (Monday to Sunday)
             const today = new Date();
             const dayOfWeek = today.getDay();
             const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -108,19 +114,88 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
                 }))
             };
 
-            const result = await timesheetService.createTimesheetWithEntries(payload);
-            if (result) {
-                alert('Timesheet draft saved successfully!');
+            let result;
+            if (timesheetId) {
+                result = await timesheetService.updateTimesheetWithEntries(timesheetId, payload);
             } else {
-                alert('Failed to save timesheet draft.');
+                result = await timesheetService.createTimesheetWithEntries(payload);
+            }
+            if (result && !result.error) {
+                alert(timesheetId ? 'Timesheet draft updated successfully!' : 'Timesheet draft saved successfully!');
+            } else {
+                const errorMsg = (result && result.error) ? result.error : 'Failed to ' + (timesheetId ? 'update' : 'save') + ' timesheet draft.';
+                alert(errorMsg);
             }
         } catch (error) {
-            alert('Error saving draft: ' + (error.message || error));
+            alert('Error ' + (timesheetId ? 'updating' : 'saving') + ' draft: ' + (error.message || error));
         }
     };
 
     const handleSubmitForApproval = async () => {
-        alert('Submit for Approval clicked. Implement submit logic.');
+        try {
+            const userData = localStorage.getItem('userData');
+            const employee = userData ? JSON.parse(userData).employee : null;
+            const employeeId = employee?.id;
+            const managerId = employee?.managerId;
+            if (!employeeId || !managerId) {
+                alert('User or manager not authenticated.');
+                return;
+            }
+
+            // Prepare timesheet payload with status SUBMITTED
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - offset);
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+
+            const timesheetPayload = {
+                employeeId,
+                periodStartDate: startOfWeek.toISOString().slice(0, 10),
+                periodEndDate: endOfWeek.toISOString().slice(0, 10),
+                status: 'SUBMITTED',
+                timeSheetEntries: entries.map(e => ({
+                    date: e.date,
+                    projectId: e.projectId,
+                    taskDescription: e.taskDescription,
+                    hoursWorked: e.hoursWorked
+                }))
+            };
+
+            // Update timesheet status to SUBMITTED
+            let result;
+            if (timesheetId) {
+                result = await timesheetService.updateTimesheetWithEntries(timesheetId, timesheetPayload);
+            } else {
+                result = await timesheetService.createTimesheetWithEntries(timesheetPayload);
+            }
+            if (result && !result.error) {
+                // Prepare approval payload
+                const approvalPayload = {
+                    timesheetId: timesheetId || result.timesheetId,
+                    approvedBy: managerId,
+                    status: 'PENDING',
+                    comments: ' '
+                };
+                // Dynamically import approvalService
+                try {
+                    const { createApproval } = await import('../../services/approvalService');
+                    await createApproval(approvalPayload);
+                    alert('Timesheet submitted and approval created!');
+                } catch (err) {
+                    alert('Timesheet submitted, but failed to create approval: ' + (err.message || err));
+                }
+            } else {
+                const errorMsg = (result && result.error) ? result.error : 'Failed to submit timesheet.';
+                alert(errorMsg);
+            }
+        } catch (error) {
+            alert('Error submitting for approval: ' + (error.message || error));
+        }
     };
 
     return (
@@ -137,7 +212,7 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
             </DataTable>
             <div className="flex justify-content-end gap-2 mt-4">
                 <Button label="Cancel" icon="pi pi-times" className="p-button-secondary p-button-sm" style={{ width: 'auto' }} onClick={handleCancel} />
-                <Button label="Save Draft" icon="pi pi-save" className="p-button-info p-button-sm" style={{ width: 'auto' }} onClick={handleSaveDraft} />
+                <Button label={timesheetId ? "Update Draft" : "Save Draft"} icon="pi pi-save" className="p-button-info p-button-sm" style={{ width: 'auto' }} onClick={handleSaveDraft} />
                 <Button label="Submit for Approval" icon="pi pi-send" className="p-button-success p-button-sm" style={{ width: 'auto' }} onClick={handleSubmitForApproval} />
             </div>
             <Dialog header={selectedEntry ? "Edit Timesheet Entry" : "Add Timesheet Entry"} visible={showAddDialog} style={{ width: '30vw' }} onHide={handleDialogHide}>
@@ -146,6 +221,7 @@ const TimesheetEntryList = ({ timesheetId, projects = [] }) => {
                     projects={projects} 
                     onSuccess={handleEntryAdded} 
                     entry={selectedEntry}
+                    onEntryChange={handleEntryChange}
                 />
             </Dialog>
         </div>
