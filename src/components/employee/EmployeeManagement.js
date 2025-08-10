@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import EmployeeList from './EmployeeList';
 import { useAuth } from '../../context/AuthContext';
-import { usePermissions } from '../../hooks/usePermissions';
+// import { usePermissions } from '../../hooks/usePermissions';
 import { Message } from 'primereact/message';
 import { Button } from 'primereact/button';
 
 const EmployeeManagement = () => {
     const { user } = useAuth();
-    const permissions = usePermissions(user);
+    const roles = user?.roles || [];
     const [triggerCreate, setTriggerCreate] = useState(0);
 
     const handleAddEmployee = () => {
@@ -15,7 +15,7 @@ const EmployeeManagement = () => {
     };
 
     // Check if user has permission to view employees
-    if (!permissions.canViewEmployees()) {
+    if (!roles.includes('ROLE_ADMIN')) {
         return (
             <div className="card">
                 <Message
@@ -37,7 +37,8 @@ const EmployeeManagement = () => {
                         </p>
                     </div>
                     <div>
-                        {permissions.canCreateEmployees() && (
+                        {/* Only admins can create employees, so always show for admin */}
+                        {roles.includes('ROLE_ADMIN') && (
                             <Button
                                 label="Add Employee"
                                 icon="pi pi-plus"

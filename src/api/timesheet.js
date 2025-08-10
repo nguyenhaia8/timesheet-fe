@@ -59,7 +59,7 @@ export const timesheetApi = {
         if (formattedEnd) queryParams.append('periodEnd', formattedEnd);
       }
       // Use /employee/{id}/all endpoint for all timesheets
-      const url = `${API_BASE_URL}/timesheets/employee/${employeeId}/all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `${API_BASE_URL}/timesheets/employee/${employeeId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       
       const response = await fetch(url, {
         method: 'GET',

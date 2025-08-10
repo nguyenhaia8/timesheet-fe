@@ -49,13 +49,14 @@ const TimesheetWeeklyView = ({ timesheet, user, onSave, onClose, permissions }) 
         try {
             setLoading(true);
             
-            // Load timesheet entries
-            const entriesResponse = await timesheetService.getTimesheetEntries(timesheet.timesheetId);
-            setEntries(entriesResponse.data || entriesResponse || []);
+            // Load timesheet entries using getTimesheetById
+            const timesheetObj = await timesheetService.getTimesheetById(timesheet.timesheetId);
+            setEntries(timesheetObj?.timeSheetEntries || []);
             
-            // Load employee projects
-            const projectsResponse = await timesheetService.getEmployeeProjects(user.employeeId);
-            setProjects(projectsResponse.data || projectsResponse || []);
+            // Use local projects filtered by timesheet entries
+            const allProjects = require('../../mock/data/projects').default;
+            const usedProjectIds = new Set((timesheetObj?.timeSheetEntries || []).map(e => e.projectId));
+            setProjects(allProjects.filter(p => usedProjectIds.has(p.projectId)));
         } catch (error) {
             console.error('Error loading timesheet data:', error);
             toast.current.show({

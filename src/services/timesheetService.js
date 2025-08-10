@@ -1,28 +1,17 @@
 // Timesheet Service - using real backend API
 import { timesheetApi } from '../api/timesheet';
 
-// Import mock functions for features not yet implemented in real API
-import {
-  getTimesheets,
-  getTimesheetById,
-  createTimesheet,
-  updateTimesheet,
-  deleteTimesheet,
-  submitTimesheet,
-  getTimesheetEntries,
-  addTimesheetEntry,
-  updateTimesheetEntry,
-  deleteTimesheetEntry,
-  getEmployeeProjects
-} from '../mock/api/timesheetApi';
-
 // Service wrapper functions - these will be the public interface
 export const timesheetService = {
   // Timesheet operations
   async getAllTimesheets(filters = {}) {
     try {
-      const response = await getTimesheets(filters);
-      return response.data;
+      const response = await timesheetApi.getAllTimesheets(filters);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching timesheets:', error);
       throw error;
@@ -31,8 +20,12 @@ export const timesheetService = {
 
   async getTimesheetById(timesheetId) {
     try {
-      const response = await getTimesheetById(timesheetId);
-      return response.data;
+      const response = await timesheetApi.getTimesheetById(timesheetId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching timesheet:', error);
       throw error;
@@ -41,11 +34,8 @@ export const timesheetService = {
 
   async getEmployeeTimesheets(employeeId, status = null, periodStart = null, periodEnd = null) {
     try {
-      // Use real API for fetching employee timesheets
       const response = await timesheetApi.getEmployeeTimesheets(employeeId, periodStart, periodEnd);
-      
       if (response.success) {
-        // Filter by status if provided (since backend might not support status filtering yet)
         let timesheets = response.data;
         if (status && Array.isArray(timesheets)) {
           timesheets = timesheets.filter(timesheet => timesheet.status === status);
@@ -62,9 +52,7 @@ export const timesheetService = {
 
   async getCurrentWeekTimesheet(employeeId) {
     try {
-      // Use real API for current week timesheets
       const response = await timesheetApi.getCurrentWeekTimesheets();
-      
       if (response.success) {
         return response.data;
       } else {
@@ -80,7 +68,6 @@ export const timesheetService = {
   async getCurrentUserTimesheets(periodStart = null, periodEnd = null) {
     try {
       const response = await timesheetApi.getCurrentUserTimesheets(periodStart, periodEnd);
-      
       if (response.success) {
         return response.data;
       } else {
@@ -94,8 +81,12 @@ export const timesheetService = {
 
   async createTimesheet(timesheetData) {
     try {
-      const response = await createTimesheet(timesheetData);
-      return response.data;
+      const response = await timesheetApi.createTimesheet(timesheetData);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error creating timesheet:', error);
       throw error;
@@ -106,7 +97,6 @@ export const timesheetService = {
   async createTimesheetWithEntries(timesheetData) {
     try {
       const response = await timesheetApi.createTimesheetWithEntries(timesheetData);
-      
       if (response.success) {
         return response.data;
       } else {
@@ -120,8 +110,12 @@ export const timesheetService = {
 
   async updateTimesheet(timesheetId, timesheetData) {
     try {
-      const response = await updateTimesheet(timesheetId, timesheetData);
-      return response.data;
+      const response = await timesheetApi.updateTimesheet(timesheetId, timesheetData);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error updating timesheet:', error);
       throw error;
@@ -130,8 +124,12 @@ export const timesheetService = {
 
   async deleteTimesheet(timesheetId) {
     try {
-      const response = await deleteTimesheet(timesheetId);
-      return response.data;
+      const response = await timesheetApi.deleteTimesheet(timesheetId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error deleting timesheet:', error);
       throw error;
@@ -140,8 +138,12 @@ export const timesheetService = {
 
   async submitTimesheetForApproval(timesheetId) {
     try {
-      const response = await submitTimesheet(timesheetId);
-      return response.data;
+      const response = await timesheetApi.submitTimesheetForApproval(timesheetId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error submitting timesheet:', error);
       throw error;
@@ -151,8 +153,12 @@ export const timesheetService = {
   // Timesheet entry operations
   async getTimesheetEntries(timesheetId) {
     try {
-      const response = await getTimesheetEntries(timesheetId);
-      return response.data;
+      const response = await timesheetApi.getTimesheetEntries(timesheetId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching timesheet entries:', error);
       throw error;
@@ -161,8 +167,12 @@ export const timesheetService = {
 
   async addTimesheetEntry(timesheetId, entryData) {
     try {
-      const response = await addTimesheetEntry(timesheetId, entryData);
-      return response.data;
+      const response = await timesheetApi.addTimesheetEntry(timesheetId, entryData);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error adding timesheet entry:', error);
       throw error;
@@ -171,8 +181,12 @@ export const timesheetService = {
 
   async updateTimesheetEntry(entryId, entryData) {
     try {
-      const response = await updateTimesheetEntry(entryId, entryData);
-      return response.data;
+      const response = await timesheetApi.updateTimesheetEntry(entryId, entryData);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error updating timesheet entry:', error);
       throw error;
@@ -181,8 +195,12 @@ export const timesheetService = {
 
   async deleteTimesheetEntry(entryId) {
     try {
-      const response = await deleteTimesheetEntry(entryId);
-      return response.data;
+      const response = await timesheetApi.deleteTimesheetEntry(entryId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error deleting timesheet entry:', error);
       throw error;
@@ -192,8 +210,12 @@ export const timesheetService = {
   // Project operations
   async getEmployeeProjects(employeeId) {
     try {
-      const response = await getEmployeeProjects(employeeId);
-      return response.data;
+      const response = await timesheetApi.getEmployeeProjects(employeeId);
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.error('Error fetching employee projects:', error);
       throw error;

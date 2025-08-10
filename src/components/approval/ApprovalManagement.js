@@ -8,11 +8,11 @@ import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalForm from './ApprovalForm';
 import ApprovalService from '../../services/approvalService';
-import { usePermissions } from '../../hooks/usePermissions';
+// import { usePermissions } from '../../hooks/usePermissions';
 import './ApprovalManagement.css';
 
 const ApprovalManagement = ({ user }) => {
-    const permissions = usePermissions(user);
+    const roles = user?.roles || [];
     const [activeIndex, setActiveIndex] = useState(0);
     const [pendingApprovals, setPendingApprovals] = useState([]);
     const [approvalHistory, setApprovalHistory] = useState([]);
@@ -196,7 +196,7 @@ const ApprovalManagement = ({ user }) => {
     };
 
     // Check if user can access approval features
-    if (!permissions.canViewApprovals()) {
+    if (!(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_MANAGER'))) {
         return (
             <div className="flex justify-content-center align-items-center h-20rem">
                 <Card>
@@ -284,7 +284,7 @@ const ApprovalManagement = ({ user }) => {
                             onQuickApprove={handleQuickApprove}
                             onBulkApprove={handleBulkApprove}
                             onRefresh={handleRefresh}
-                            permissions={permissions}
+                            // permissions removed
                             user={user}
                             type="pending"
                         />
@@ -300,7 +300,7 @@ const ApprovalManagement = ({ user }) => {
                             actionLoading={actionLoading}
                             onViewDetails={handleViewDetails}
                             onRefresh={handleRefresh}
-                            permissions={permissions}
+                            // permissions removed
                             user={user}
                             type="history"
                         />
@@ -314,7 +314,7 @@ const ApprovalManagement = ({ user }) => {
                     approval={selectedApproval}
                     onApprove={handleApprovalAction}
                     onClose={() => setDetailVisible(false)}
-                    permissions={permissions}
+                    // permissions removed
                 />
             )}
 

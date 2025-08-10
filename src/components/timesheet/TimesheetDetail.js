@@ -22,11 +22,10 @@ const TimesheetDetail = ({ timesheet, user, onEdit, onSubmit, onClose, permissio
 
     const loadTimesheetEntries = async () => {
         if (!timesheet) return;
-        
         try {
             setLoading(true);
-            const response = await timesheetService.getTimesheetEntries(timesheet.timesheetId);
-            setEntries(response.data || response || []);
+            const timesheetObj = await timesheetService.getTimesheetById(timesheet.timesheetId);
+            setEntries(timesheetObj?.timeSheetEntries || []);
         } catch (error) {
             console.error('Error loading timesheet entries:', error);
         } finally {

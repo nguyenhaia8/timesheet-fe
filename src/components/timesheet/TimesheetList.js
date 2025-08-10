@@ -19,7 +19,7 @@ import {
   formatWeekRange, 
   getTimesheetPeriodSuggestions
 } from '../../utils/dateUtils';
-import TimesheetForm from './TimesheetForm';
+import TimesheetEntryList from './TimesheetEntryList';
 import TimesheetDetail from './TimesheetDetail';
 import TimesheetWeeklyView from './TimesheetWeeklyView';
 import './TimesheetList.css';
@@ -38,6 +38,7 @@ const TimesheetList = ({ user }) => {
 
     // Dialog states
     const [showCreateDialog, setShowCreateDialog] = useState(false);
+    const [createDialogTimesheetId, setCreateDialogTimesheetId] = useState(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDetailDialog, setShowDetailDialog] = useState(false);
     const [showWeeklyDialog, setShowWeeklyDialog] = useState(false);
@@ -64,7 +65,6 @@ const TimesheetList = ({ user }) => {
     const [isDateRangeActive, setIsDateRangeActive] = useState(true); // Default to active since we have default dates
 
     const toast = useRef(null);
-    const permissions = usePermissions(user);
 
     // Status options
     const statusOptions = [
@@ -122,13 +122,47 @@ const TimesheetList = ({ user }) => {
     };
 
     const handleCreate = () => {
-        // All authenticated users can create their own timesheets
-        setSelectedTimesheet(null);
-        setShowCreateDialog(true);
+        // Get employeeId from session/localStorage
+        const userData = localStorage.getItem('userData');
+        const employeeId = userData ? JSON.parse(userData).employee?.id : null;
+        // Calculate current week (Monday to today)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dayOfWeek = today.getDay();
+        const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - offset);
+        startOfWeek.setHours(0, 0, 0, 0);
+        const periodStart = startOfWeek.toISOString().slice(0, 10);
+        const periodEnd = today.toISOString().slice(0, 10);
+
+        // Fetch timesheet for employee and week
+        const fetchTimesheet = async () => {
+            try {
+                const timesheets = await timesheetService.getEmployeeTimesheets(employeeId, null, periodStart, periodEnd);
+                // Use the first timesheet for the week, or null if none
+                const timesheet = Array.isArray(timesheets) && timesheets.length > 0 ? timesheets[0] : null;
+                setCreateDialogTimesheetId(timesheet ? timesheet.timesheetId : null);
+                setSelectedTimesheet(null);
+                setShowCreateDialog(true);
+            } catch (error) {
+                setCreateDialogTimesheetId(null);
+                setSelectedTimesheet(null);
+                setShowCreateDialog(true);
+            }
+        };
+        fetchTimesheet();
     };
 
     const handleEdit = (timesheet) => {
-        if (timesheet.status !== 'Draft') {
+        const statusMap = {
+            'DRAFT': 'Draft',
+            'SUBMITTED': 'Submitted',
+            'APPROVED': 'Approved',
+            'REJECTED': 'Rejected',
+        };
+        const uiStatus = statusMap[timesheet.status] || timesheet.status;
+        if (uiStatus !== 'Draft') {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Cannot Edit',
@@ -152,7 +186,14 @@ const TimesheetList = ({ user }) => {
     };
 
     const handleSubmit = async (timesheet) => {
-        if (!permissions.canSubmitTimesheet() || timesheet.status !== 'Draft') {
+        const statusMap = {
+            'DRAFT': 'Draft',
+            'SUBMITTED': 'Submitted',
+            'APPROVED': 'Approved',
+            'REJECTED': 'Rejected',
+        };
+        const uiStatus = statusMap[timesheet.status] || timesheet.status;
+        if (uiStatus !== 'Draft') {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Access Denied',
@@ -190,7 +231,14 @@ const TimesheetList = ({ user }) => {
     };
 
     const handleDelete = (timesheet) => {
-        if (timesheet.status !== 'Draft') {
+        const statusMap = {
+            'DRAFT': 'Draft',
+            'SUBMITTED': 'Submitted',
+            'APPROVED': 'Approved',
+            'REJECTED': 'Rejected',
+        };
+        const uiStatus = statusMap[timesheet.status] || timesheet.status;
+        if (uiStatus !== 'Draft') {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Cannot Delete',
@@ -425,11 +473,18 @@ const TimesheetList = ({ user }) => {
                 default: return 'info';
             }
         };
-
+        // Map backend status to UI status
+        const statusMap = {
+            'DRAFT': 'Draft',
+            'SUBMITTED': 'Submitted',
+            'APPROVED': 'Approved',
+            'REJECTED': 'Rejected',
+        };
+        const uiStatus = statusMap[rowData.status] || rowData.status;
         return (
             <Tag 
-                value={rowData.status} 
-                severity={getSeverity(rowData.status)}
+                value={uiStatus} 
+                severity={getSeverity(uiStatus)}
             />
         );
     };
@@ -453,10 +508,18 @@ const TimesheetList = ({ user }) => {
     };
 
     const actionBodyTemplate = (rowData) => {
-        const isDraft = rowData.status === 'Draft';
-        const canEdit = isDraft; // Users can edit their own draft timesheets
-        const canSubmit = isDraft; // Users can submit their own draft timesheets
-        const canDelete = isDraft; // Users can delete their own draft timesheets
+        // Map backend status to UI status
+        const statusMap = {
+            'DRAFT': 'Draft',
+            'SUBMITTED': 'Submitted',
+            'APPROVED': 'Approved',
+            'REJECTED': 'Rejected',
+        };
+        const uiStatus = statusMap[rowData.status] || rowData.status;
+        const isDraft = uiStatus === 'Draft';
+        const canEdit = isDraft;
+        const canSubmit = isDraft;
+        const canDelete = isDraft;
 
         return (
             <div className="flex gap-2">
@@ -508,14 +571,12 @@ const TimesheetList = ({ user }) => {
     const rightToolbarTemplate = () => {
         return (
             <div className="flex align-items-center">
-                {permissions.canCreateTimesheets() && (
-                    <Button
-                        label="New Timesheet"
-                        icon="pi pi-plus"
-                        className="p-button-success"
-                        onClick={handleCreate}
-                    />
-                )}
+                <Button
+                    label="New Timesheet"
+                    icon="pi pi-plus"
+                    className="p-button-success"
+                    onClick={handleCreate}
+                />
             </div>
         );
     };
@@ -645,7 +706,7 @@ const TimesheetList = ({ user }) => {
 
                 <DataTable
                     value={timesheets}
-                    lazy={permissions.canViewAllTimesheet()}
+                    lazy={false}
                     dataKey="timesheetId"
                     paginator
                     rows={rows}
@@ -705,35 +766,56 @@ const TimesheetList = ({ user }) => {
             {/* Create Timesheet Dialog */}
             <Dialog
                 visible={showCreateDialog}
-                style={{ width: '500px' }}
-                header="Create New Timesheet"
+                style={{ width: '900px' }}
+                header="Add Timesheet Entries"
                 modal
+                maximizable
                 className="p-fluid"
                 onHide={() => setShowCreateDialog(false)}
             >
-                <TimesheetForm
-                    timesheet={null}
-                    user={user}
-                    onSave={handleSave}
-                    onCancel={() => setShowCreateDialog(false)}
+                <TimesheetEntryList
+                    timesheetId={createDialogTimesheetId}
                 />
             </Dialog>
 
             {/* Edit Timesheet Dialog */}
             <Dialog
                 visible={showEditDialog}
-                style={{ width: '500px' }}
-                header="Edit Timesheet"
+                style={{ width: '900px' }}
+                header="Edit Timesheet & Entries"
                 modal
+                maximizable
                 className="p-fluid"
                 onHide={() => setShowEditDialog(false)}
             >
-                <TimesheetForm
-                    timesheet={selectedTimesheet}
-                    user={user}
-                    onSave={handleSave}
-                    onCancel={() => setShowEditDialog(false)}
-                />
+                {selectedTimesheet && (
+                    <TimesheetEntryList
+                        timesheetId={selectedTimesheet.timesheetId}
+                        editable
+                        onSave={async (updatedEntries) => {
+                            // Call backend to update timesheet and entries
+                            try {
+                                await timesheetService.updateTimesheetWithEntries(selectedTimesheet.timesheetId, updatedEntries);
+                                toast.current.show({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Timesheet and entries updated successfully',
+                                    life: 3000
+                                });
+                                setShowEditDialog(false);
+                                loadTimesheets();
+                            } catch (error) {
+                                toast.current.show({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Failed to update timesheet and entries',
+                                    life: 3000
+                                });
+                            }
+                        }}
+                        onCancel={() => setShowEditDialog(false)}
+                    />
+                )}
             </Dialog>
 
             {/* Timesheet Detail Dialog */}
@@ -756,7 +838,6 @@ const TimesheetList = ({ user }) => {
                         handleSubmit(selectedTimesheet);
                     }}
                     onClose={() => setShowDetailDialog(false)}
-                    permissions={permissions}
                 />
             </Dialog>
 
@@ -774,7 +855,6 @@ const TimesheetList = ({ user }) => {
                     user={user}
                     onSave={loadTimesheets}
                     onClose={() => setShowWeeklyDialog(false)}
-                    permissions={permissions}
                 />
             </Dialog>
         </div>

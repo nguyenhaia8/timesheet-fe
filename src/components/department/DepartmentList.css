@@ -1,0 +1,19 @@
+
+
+.department-list .p-datatable {
+    font-size: 0.95rem;
+}
+
+.department-list .p-dialog-content {
+    font-size: 1rem;
+}
+
+
+
+.department-list-content .card {
+    margin: 0;
+}
+
+.department-list-content h2 {
+    margin-left: 0;
+}

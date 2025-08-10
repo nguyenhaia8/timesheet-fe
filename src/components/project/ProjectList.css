@@ -1,0 +1,12 @@
+/* .project-list {
+    margin: 2rem auto 2rem 0;
+    max-width: 900px;
+} */
+
+.project-list .card {
+    margin: 0;
+}
+
+.project-list h2 {
+    margin-left: 0;
+}

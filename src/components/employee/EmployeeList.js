@@ -13,7 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { FilterMatchMode } from 'primereact/api';
 import { employeeService } from '../../services/employeeService';
-import { usePermissions } from '../../hooks/usePermissions';
+import { departmentService } from '../../services/departmentService';
 import EmployeeForm from './EmployeeForm';
 import EmployeeDetail from './EmployeeDetail';
 import './EmployeeList.css';
@@ -46,10 +46,8 @@ const EmployeeList = ({ user, triggerCreate }) => {
     const [managers, setManagers] = useState([]);
 
     const toast = useRef(null);
-    const permissions = usePermissions(user);
 
-    // Load initial data
-    // Load initial data
+    // Load initial data from backend
     const loadEmployees = useCallback(async () => {
         try {
             setLoading(true);
@@ -59,8 +57,14 @@ const EmployeeList = ({ user, triggerCreate }) => {
                 filters: filters,
                 search: globalFilter
             });
-            setEmployees(response.data || []);
-            setTotalRecords(response.total || 0);
+            // If response is an array, use it directly
+            if (Array.isArray(response)) {
+                setEmployees(response);
+                setTotalRecords(response.length);
+            } else {
+                setEmployees(response.employees || response.data || []);
+                setTotalRecords(response.total || response.count || 0);
+            }
         } catch (error) {
             console.error('Error loading employees:', error);
             toast.current.show({
@@ -76,9 +80,17 @@ const EmployeeList = ({ user, triggerCreate }) => {
 
     useEffect(() => {
         loadEmployees();
-        loadDepartments();
-        loadManagers();
     }, [loadEmployees]);
+
+    // Only load departments once on mount
+    useEffect(() => {
+        loadDepartments();
+    }, []);
+
+    // Only load managers once on mount
+    useEffect(() => {
+        loadManagers();
+    }, []);
 
     // Handle trigger create from parent
     useEffect(() => {
@@ -86,28 +98,26 @@ const EmployeeList = ({ user, triggerCreate }) => {
             handleCreate();
         }
     }, [triggerCreate]);
+
+    // Load departments from backend
     const loadDepartments = async () => {
         try {
-            // In a real app, this would come from a department service
-            const mockDepartments = [
-                { label: 'Information Technology', value: 1 },
-                { label: 'Human Resources', value: 2 },
-                { label: 'Finance', value: 3 },
-                { label: 'Marketing', value: 4 },
-                { label: 'Operations', value: 5 }
-            ];
-            setDepartments(mockDepartments);
+            const response = await departmentService.getDepartments();
+            // Map to dropdown format
+            const deptOptions = (response.data || response).map(dept => ({ label: dept.name, value: dept.departmentId }));
+            setDepartments(deptOptions);
         } catch (error) {
             console.error('Error loading departments:', error);
         }
     };
 
+    // Load managers from backend
     const loadManagers = async () => {
         try {
             const response = await employeeService.getAllEmployees({
                 filters: { position: { value: 'Manager', matchMode: FilterMatchMode.CONTAINS } }
             });
-            setManagers(response.data || []);
+            setManagers(response.employees || response.data || []);
         } catch (error) {
             console.error('Error loading managers:', error);
         }
@@ -133,7 +143,8 @@ const EmployeeList = ({ user, triggerCreate }) => {
     };
 
     const handleCreate = () => {
-        if (!permissions.canCreateEmployees()) {
+        // Only allow admins to create employees
+        if (!user?.roles?.includes('ROLE_ADMIN')) {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Access Denied',
@@ -147,7 +158,8 @@ const EmployeeList = ({ user, triggerCreate }) => {
     };
 
     const handleEdit = (employee) => {
-        if (!permissions.canEditEmployee()) {
+        // Only allow admins to edit employees
+        if (!user?.roles?.includes('ROLE_ADMIN')) {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Access Denied',
@@ -166,7 +178,8 @@ const EmployeeList = ({ user, triggerCreate }) => {
     };
 
     const handleDelete = (employee) => {
-        if (!permissions.canDeleteEmployee()) {
+        // Only allow admins to delete employees
+        if (!user?.roles?.includes('ROLE_ADMIN')) {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Access Denied',
@@ -256,6 +269,7 @@ const EmployeeList = ({ user, triggerCreate }) => {
     };
 
     const departmentBodyTemplate = (rowData) => {
+        if (rowData.departmentName) return rowData.departmentName;
         const department = departments.find(d => d.value === rowData.departmentId);
         return department?.label || 'Unknown Department';
     };
@@ -282,7 +296,7 @@ const EmployeeList = ({ user, triggerCreate }) => {
                     onClick={() => handleView(rowData)}
                     tooltip="View Details"
                 />
-                {permissions.canEditEmployee() && (
+                {user?.roles?.includes('ROLE_ADMIN') && (
                     <Button
                         icon="pi pi-pencil"
                         className="p-button-rounded p-button-text p-button-sm"
@@ -290,7 +304,7 @@ const EmployeeList = ({ user, triggerCreate }) => {
                         tooltip="Edit"
                     />
                 )}
-                {permissions.canDeleteEmployee() && (
+                {user?.roles?.includes('ROLE_ADMIN') && (
                     <Button
                         icon="pi pi-trash"
                         className="p-button-rounded p-button-text p-button-sm p-button-danger"
@@ -503,7 +517,7 @@ const EmployeeList = ({ user, triggerCreate }) => {
                         handleEdit(selectedEmployee);
                     }}
                     onClose={() => setShowDetailDialog(false)}
-                    canEdit={permissions.canEditEmployee()}
+                    canEdit={user?.roles?.includes('ROLE_ADMIN')}
                 />
             </Dialog>
         </div>

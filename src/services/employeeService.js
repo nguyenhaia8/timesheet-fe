@@ -1,25 +1,12 @@
 // Employee Service - currently using mock API
-import {
-  getEmployees,
-  getEmployeeById,
-  getEmployeeWithUserInfo,
-  getEmployeesByDepartment,
-  getManagedEmployees,
-  searchEmployees,
-  createEmployee,
-  updateEmployee,
-  deleteEmployee
-} from '../mock/api/employeeApi';
 
-// Real API imports
+import axios from 'axios';
 import { authApi } from '../api/auth';
 
-// Real API configuration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api') + '/employees';
 
-// Helper method to get auth headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('timetracker_token') || sessionStorage.getItem('timetracker_token');
   return {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })
@@ -27,9 +14,20 @@ const getAuthHeaders = () => {
 };
 
 export const employeeService = {
-  async getAllEmployees(filters = {}) {
+  async getAllEmployees({ page = 1, limit = 10, filters = {}, search = '' } = {}) {
     try {
-      const response = await getEmployees(filters);
+      // Build query params for pagination, filters, and search
+      const params = { page, limit, search };
+      // Flatten filters for backend
+      Object.keys(filters).forEach(key => {
+        if (filters[key]?.value != null) {
+          params[key] = filters[key].value;
+        }
+      });
+      const response = await axios.get(API_BASE_URL, {
+        headers: getAuthHeaders(),
+        params
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -39,7 +37,9 @@ export const employeeService = {
 
   async getEmployeeById(employeeId) {
     try {
-      const response = await getEmployeeById(employeeId);
+      const response = await axios.get(`${API_BASE_URL}/${employeeId}`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching employee:', error);
@@ -49,7 +49,9 @@ export const employeeService = {
 
   async getEmployeeDetails(employeeId) {
     try {
-      const response = await getEmployeeWithUserInfo(employeeId);
+      const response = await axios.get(`${API_BASE_URL}/${employeeId}/details`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching employee details:', error);
@@ -59,7 +61,9 @@ export const employeeService = {
 
   async getDepartmentEmployees(departmentId) {
     try {
-      const response = await getEmployeesByDepartment(departmentId);
+      const response = await axios.get(`${API_BASE_URL}?departmentId=${departmentId}`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching department employees:', error);
@@ -69,7 +73,9 @@ export const employeeService = {
 
   async getTeamMembers(managerId) {
     try {
-      const response = await getManagedEmployees(managerId);
+      const response = await axios.get(`${API_BASE_URL}?managerId=${managerId}`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -79,7 +85,9 @@ export const employeeService = {
 
   async searchEmployees(searchTerm) {
     try {
-      const response = await searchEmployees(searchTerm);
+      const response = await axios.get(`${API_BASE_URL}?search=${encodeURIComponent(searchTerm)}`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error searching employees:', error);
@@ -89,7 +97,9 @@ export const employeeService = {
 
   async createEmployee(employeeData) {
     try {
-      const response = await createEmployee(employeeData);
+      const response = await axios.post(API_BASE_URL, employeeData, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating employee:', error);
@@ -99,7 +109,9 @@ export const employeeService = {
 
   async updateEmployee(employeeId, employeeData) {
     try {
-      const response = await updateEmployee(employeeId, employeeData);
+      const response = await axios.put(`${API_BASE_URL}/${employeeId}`, employeeData, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error updating employee:', error);
@@ -109,7 +121,9 @@ export const employeeService = {
 
   async deleteEmployee(employeeId) {
     try {
-      const response = await deleteEmployee(employeeId);
+      const response = await axios.delete(`${API_BASE_URL}/${employeeId}`, {
+        headers: getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error deleting employee:', error);

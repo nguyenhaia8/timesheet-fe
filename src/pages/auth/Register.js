@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
+import { MultiSelect } from 'primereact/multiselect';
 import { Message } from 'primereact/message';
 import { Toast } from 'primereact/toast';
 import { Divider } from 'primereact/divider';
 import { classNames } from 'primereact/utils';
 import { useRef } from 'react';
+import { departmentService } from '../../services/departmentService';
+import { employeeService } from '../../services/employeeService';
 import './Register.css';
 
 const Register = ({ onSuccess, onSwitchToLogin }) => {
@@ -29,20 +32,40 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
     const [loading, setLoading] = useState(false);
     const toast = useRef(null);
 
-    // Mock departments and managers - in real app, fetch from API
-    const departments = [
-        { label: 'Information Technology', value: 1 },
-        { label: 'Human Resources', value: 2 },
-        { label: 'Finance', value: 3 },
-        { label: 'Marketing', value: 4 },
-        { label: 'Operations', value: 5 }
-    ];
+    // Departments and managers from backend
+    const [departments, setDepartments] = useState([]);
+    const [managers, setManagers] = useState([]);
 
-    const managers = [
-        { label: 'John Manager', value: 11 },
-        { label: 'Jane Supervisor', value: 12 },
-        { label: 'Bob Director', value: 13 },
-        { label: 'Alice Lead', value: 14 }
+    useEffect(() => {
+        // Fetch departments
+        const fetchDepartments = async () => {
+            try {
+                const response = await departmentService.getDepartments();
+                const deptOptions = (response.data || response).map(dept => ({ label: dept.name, value: dept.departmentId }));
+                setDepartments(deptOptions);
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        };
+        // Fetch managers (all employees for now)
+        const fetchManagers = async () => {
+            try {
+                const response = await employeeService.getAllEmployees();
+                // Use full name for label
+                const mgrOptions = (Array.isArray(response) ? response : response.employees || response.data || []).map(emp => ({ label: `${emp.firstName} ${emp.lastName}`, value: emp.employeeId }));
+                setManagers(mgrOptions);
+            } catch (error) {
+                console.error('Error loading managers:', error);
+            }
+        };
+        fetchDepartments();
+        fetchManagers();
+    }, []);
+
+    const roleOptions = [
+        { label: 'Employee', value: 'EMPLOYEE' },
+        { label: 'Manager', value: 'MANAGER' },
+        { label: 'Admin', value: 'ADMIN' }
     ];
 
     const handleInputChange = (field, value) => {
@@ -398,6 +421,22 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
                                     onChange={(e) => handleInputChange('managerId', e.value)}
                                     placeholder="Select your manager (optional)"
                                     showClear
+                                />
+                            </div>
+                            <div className="form-field">
+                                <label htmlFor="roles" className="form-label">
+                                    Roles
+                                </label>
+                                <MultiSelect
+                                    id="roles"
+                                    value={formData.roles}
+                                    options={roleOptions}
+                                    onChange={e => handleInputChange('roles', e.value)}
+                                    placeholder="Select roles"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    className="w-full"
+                                    display="chip"
                                 />
                             </div>
                         </div>
