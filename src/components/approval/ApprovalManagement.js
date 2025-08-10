@@ -26,36 +26,10 @@ const ApprovalManagement = ({ user }) => {
     const toast = useRef(null);
 
     useEffect(() => {
-        loadData();
         loadStatistics();
     }, []);
 
-    const loadData = async () => {
-        setLoading(true);
-        try {
-            const [pendingResult, historyResult] = await Promise.all([
-                /* getPendingApprovals(), */
-                /* getApprovalHistory() */
-            ]);
-
-            if (pendingResult.success) {
-                setPendingApprovals(pendingResult.data);
-            } else {
-                showError('Failed to load pending approvals: ' + pendingResult.error);
-            }
-
-            if (historyResult.success) {
-                setApprovalHistory(historyResult.data);
-            } else {
-                showError('Failed to load approval history: ' + historyResult.error);
-            }
-        } catch (error) {
-            showError('Failed to load approval data');
-            console.error('Error loading approval data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // loadData removed
 
     const loadStatistics = async () => {
         try {
@@ -87,7 +61,7 @@ const ApprovalManagement = ({ user }) => {
             // if (result.success) {
             //     showSuccess(result.message || 'Timesheet approved successfully');
             //     setApprovalFormVisible(false);
-            //     await loadData();
+            //     // await loadData();
             //     await loadStatistics();
             // } else {
             //     showError(result.error || 'Failed to approve timesheet');
@@ -108,7 +82,7 @@ const ApprovalManagement = ({ user }) => {
             // if (result.success) {
             //     showSuccess(result.message || 'Timesheet rejected');
             //     setApprovalFormVisible(false);
-            //     await loadData();
+            //     // await loadData();
             //     await loadStatistics();
             // } else {
             //     showError(result.error || 'Failed to reject timesheet');
@@ -128,7 +102,7 @@ const ApprovalManagement = ({ user }) => {
             // const result = await approveTimesheet(approval.approvalId, 'Quick approval');
             // if (result.success) {
             //     showSuccess('Timesheet approved successfully');
-            //     await loadData();
+            //     // await loadData();
             //     await loadStatistics();
             // } else {
             //     showError(result.error || 'Failed to approve timesheet');
@@ -148,7 +122,7 @@ const ApprovalManagement = ({ user }) => {
             // const result = await bulkApprove(approvalIds, 'Bulk approval');
             // if (result.success) {
             //     showSuccess(result.message || 'Timesheets approved successfully');
-            //     await loadData();
+            //     // await loadData();
             //     await loadStatistics();
             // } else {
             //     showError(result.error || 'Failed to approve timesheets');
@@ -162,7 +136,7 @@ const ApprovalManagement = ({ user }) => {
     };
 
     const handleRefresh = () => {
-        loadData();
+        // loadData();
         loadStatistics();
     };
 
