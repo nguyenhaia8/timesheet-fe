@@ -1,5 +1,5 @@
 // Authentication API - Real backend integration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://128.203.177.65:8080/api';
 
 // Helper function to get stored token
 const getStoredToken = () => {
@@ -33,6 +33,7 @@ export const authApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(registrationData)
       });
 
@@ -59,6 +60,7 @@ export const authApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(credentials)
       });
 
@@ -119,7 +121,8 @@ export const authApi = {
         // Call backend logout endpoint if available
         await fetch(`${API_BASE_URL}/auth/logout`, {
           method: 'POST',
-          headers: getAuthHeaders()
+          headers: getAuthHeaders(),
+          credentials: 'include'
         }).catch(() => {
           // Ignore errors on logout endpoint - might not exist yet
         });
@@ -151,7 +154,8 @@ export const authApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -180,7 +184,8 @@ export const authApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -208,6 +213,7 @@ export const authApi = {
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         method: 'PUT',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(profileData)
       });
 
@@ -236,6 +242,7 @@ export const authApi = {
       const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
         method: 'PUT',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(passwordData)
       });
 
@@ -263,6 +270,7 @@ export const authApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ email })
       });
 
@@ -290,6 +298,7 @@ export const authApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(resetData)
       });
 
@@ -323,7 +332,8 @@ export const authApi = {
 
       const response = await fetch(`${API_BASE_URL}/auth/verify-token`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);

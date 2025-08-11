@@ -1,17 +1,9 @@
 // Employee Service - currently using mock API
 
-import axios from 'axios';
+import apiClient from '../utils/axiosConfig';
 import { authApi } from '../api/auth';
 
-const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api') + '/employees';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('timetracker_token') || sessionStorage.getItem('timetracker_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
-  };
-};
+const API_BASE_URL = '/employees';
 
 export const employeeService = {
   async getAllEmployees({ page = 1, limit = 10, filters = {}, search = '' } = {}) {
@@ -24,8 +16,7 @@ export const employeeService = {
           params[key] = filters[key].value;
         }
       });
-      const response = await axios.get(API_BASE_URL, {
-        headers: getAuthHeaders(),
+      const response = await apiClient.get(API_BASE_URL, {
         params
       });
       return response.data;
@@ -37,9 +28,7 @@ export const employeeService = {
 
   async getEmployeeById(employeeId) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${employeeId}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.get(`${API_BASE_URL}/${employeeId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching employee:', error);
@@ -49,9 +38,7 @@ export const employeeService = {
 
   async getEmployeeDetails(employeeId) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${employeeId}/details`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.get(`${API_BASE_URL}/${employeeId}/details`);
       return response.data;
     } catch (error) {
       console.error('Error fetching employee details:', error);
@@ -61,9 +48,7 @@ export const employeeService = {
 
   async getDepartmentEmployees(departmentId) {
     try {
-      const response = await axios.get(`${API_BASE_URL}?departmentId=${departmentId}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.get(`${API_BASE_URL}?departmentId=${departmentId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching department employees:', error);
@@ -73,9 +58,7 @@ export const employeeService = {
 
   async getTeamMembers(managerId) {
     try {
-      const response = await axios.get(`${API_BASE_URL}?managerId=${managerId}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.get(`${API_BASE_URL}?managerId=${managerId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -85,9 +68,7 @@ export const employeeService = {
 
   async searchEmployees(searchTerm) {
     try {
-      const response = await axios.get(`${API_BASE_URL}?search=${encodeURIComponent(searchTerm)}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.get(`${API_BASE_URL}?search=${encodeURIComponent(searchTerm)}`);
       return response.data;
     } catch (error) {
       console.error('Error searching employees:', error);
@@ -97,9 +78,7 @@ export const employeeService = {
 
   async createEmployee(employeeData) {
     try {
-      const response = await axios.post(API_BASE_URL, employeeData, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.post(API_BASE_URL, employeeData);
       return response.data;
     } catch (error) {
       console.error('Error creating employee:', error);
@@ -109,9 +88,7 @@ export const employeeService = {
 
   async updateEmployee(employeeId, employeeData) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/${employeeId}`, employeeData, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.put(`${API_BASE_URL}/${employeeId}`, employeeData);
       return response.data;
     } catch (error) {
       console.error('Error updating employee:', error);
@@ -121,9 +98,7 @@ export const employeeService = {
 
   async deleteEmployee(employeeId) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${employeeId}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await apiClient.delete(`${API_BASE_URL}/${employeeId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting employee:', error);
@@ -152,20 +127,14 @@ export const employeeService = {
 
   async register(registrationData) {
     try {
-      // Use real API endpoint for registration
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(registrationData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+      // Use authApi for registration
+      const response = await authApi.register(registrationData);
+      
+      if (response.success) {
+        return response.data;
+      } else {
+        throw new Error(response.error || 'Registration failed');
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

@@ -12,6 +12,7 @@ export const timesheetService = {
           'Content-Type': 'application/json',
           ...(localStorage.getItem('authToken') && { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` })
         },
+        credentials: 'include',
         body: JSON.stringify(timesheetData)
       });
       if (!response.ok) {

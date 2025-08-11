@@ -1,5 +1,5 @@
 // Timesheet API - Real backend integration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://128.203.177.65:8080/api';
 
 // Helper function to get stored token
 const getStoredToken = () => {
@@ -63,7 +63,8 @@ export const timesheetApi = {
       
       const response = await fetch(url, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -138,7 +139,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -163,6 +165,7 @@ export const timesheetApi = {
       const response = await fetch(`${API_BASE_URL}/timesheets`, {
         method: 'POST',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(timesheetData)
       });
 
@@ -188,6 +191,7 @@ export const timesheetApi = {
       const response = await fetch(`${API_BASE_URL}/timesheets/with-entries`, {
         method: 'POST',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(timesheetData)
       });
 
@@ -213,6 +217,7 @@ export const timesheetApi = {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(timesheetData)
       });
 
@@ -237,7 +242,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}`, {
         method: 'DELETE',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       await handleApiResponse(response);
@@ -260,7 +266,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}/submit`, {
         method: 'PUT',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -284,7 +291,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}/entries`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);
@@ -309,6 +317,7 @@ export const timesheetApi = {
       const response = await fetch(`${API_BASE_URL}/timesheets/${timesheetId}/entries`, {
         method: 'POST',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(entryData)
       });
 
@@ -334,6 +343,7 @@ export const timesheetApi = {
       const response = await fetch(`${API_BASE_URL}/timesheet-entries/${entryId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
+        credentials: 'include',
         body: JSON.stringify(entryData)
       });
 
@@ -358,7 +368,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/timesheet-entries/${entryId}`, {
         method: 'DELETE',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       await handleApiResponse(response);
@@ -381,7 +392,8 @@ export const timesheetApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/employees/${employeeId}/projects`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await handleApiResponse(response);

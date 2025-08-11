@@ -1,35 +1,27 @@
 // src/services/projectService.js
-import axios from 'axios';
+import apiClient from '../utils/axiosConfig';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL + '/projects';
-
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('timetracker_token') || sessionStorage.getItem('timetracker_token');
-    return {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-};
+const API_BASE_URL = '/projects';
 
 export const projectService = {
     getProjects: async () => {
-        const response = await axios.get(API_BASE_URL, { headers: getAuthHeaders() });
+        const response = await apiClient.get(API_BASE_URL);
         return response;
     },
     getProjectById: async (projectId) => {
-        const response = await axios.get(`${API_BASE_URL}/${projectId}`, { headers: getAuthHeaders() });
+        const response = await apiClient.get(`${API_BASE_URL}/${projectId}`);
         return response;
     },
     deleteProject: async (projectId) => {
-        const response = await axios.delete(`${API_BASE_URL}/${projectId}`, { headers: getAuthHeaders() });
+        const response = await apiClient.delete(`${API_BASE_URL}/${projectId}`);
         return response;
     },
     createProject: async (projectData) => {
-        const response = await axios.post(API_BASE_URL, projectData, { headers: getAuthHeaders() });
+        const response = await apiClient.post(API_BASE_URL, projectData);
         return response;
     },
     updateProject: async (projectId, projectData) => {
-        const response = await axios.put(`${API_BASE_URL}/${projectId}`, projectData, { headers: getAuthHeaders() });
+        const response = await apiClient.put(`${API_BASE_URL}/${projectId}`, projectData);
         return response;
     },
     // Add more methods for create, update, delete as needed

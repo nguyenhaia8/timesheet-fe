@@ -12,6 +12,7 @@ import { classNames } from 'primereact/utils';
 import { useRef } from 'react';
 import { departmentService } from '../../services/departmentService';
 import { employeeService } from '../../services/employeeService';
+import { authApi } from '../../api/auth';
 import './Register.css';
 
 const Register = ({ onSuccess, onSwitchToLogin }) => {
@@ -160,21 +161,12 @@ const Register = ({ onSuccess, onSwitchToLogin }) => {
                 roles: formData.roles
             };
 
-            // Make API call to real endpoint
-            const response = await fetch('http://localhost:8080/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(registrationData)
-            });
+            // Make API call using authApi
+            const result = await authApi.register(registrationData);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Registration failed');
+            if (!result.success) {
+                throw new Error(result.error || 'Registration failed');
             }
-
-            const result = await response.json();
 
             toast.current.show({
                 severity: 'success',
