@@ -1,5 +1,5 @@
 // Authentication API - Real backend integration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://128.203.177.65:8080/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://52.228.185.97/api';
 
 // Helper function to get stored token
 const getStoredToken = () => {
